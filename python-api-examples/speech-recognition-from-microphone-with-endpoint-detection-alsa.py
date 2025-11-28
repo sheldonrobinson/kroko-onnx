@@ -14,7 +14,7 @@
 import argparse
 from pathlib import Path
 
-import kroko_onnx
+import sherpa_onnx
 
 
 def assert_file_exists(filename: str):
@@ -100,6 +100,20 @@ def get_args():
     )
 
     parser.add_argument(
+        "--hr-lexicon",
+        type=str,
+        default="",
+        help="If not empty, it is the lexicon.txt for homophone replacer",
+    )
+
+    parser.add_argument(
+        "--hr-rule-fsts",
+        type=str,
+        default="",
+        help="If not empty, it is the replace.fst for homophone replacer",
+    )
+
+    parser.add_argument(
         "--device-name",
         type=str,
         required=True,
@@ -133,7 +147,7 @@ def create_recognizer(args):
     # https://app.kroko.ai - Pro models
     # https://huggingface.co/Banafo/Kroko-ASR - Free models
     # for download links.
-    recognizer = kroko_onnx.OnlineRecognizer.from_transducer(
+    recognizer = sherpa_onnx.OnlineRecognizer.from_transducer(
         model_path=args.model,
         key=args.key,
         referralcode=args.referralcode,
@@ -147,6 +161,8 @@ def create_recognizer(args):
         hotwords_score=args.hotwords_score,
         modeling_unit=args.modeling_unit,
         blank_penalty=args.blank_penalty,
+        hr_rule_fsts=args.hr_rule_fsts,
+        hr_lexicon=args.hr_lexicon,
     )
     return recognizer
 
@@ -155,7 +171,7 @@ def main():
     args = get_args()
     device_name = args.device_name
     print(f"device_name: {device_name}")
-    alsa = kroko_onnx.Alsa(device_name)
+    alsa = sherpa_onnx.Alsa(device_name)
 
     print("Creating recognizer")
     recognizer = create_recognizer(args)
@@ -166,7 +182,7 @@ def main():
 
     stream = recognizer.create_stream()
 
-    display = kroko_onnx.Display()
+    display = sherpa_onnx.Display()
 
     while True:
         samples = alsa.read(samples_per_read)  # a blocking read

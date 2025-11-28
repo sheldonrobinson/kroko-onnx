@@ -9,7 +9,7 @@
 #include <fstream>
 #include <map>
 #include <memory>
-#include <mutex>  // NOLINT
+#include <mutex>
 #include <set>
 #include <string>
 #include <unordered_set>
@@ -21,7 +21,7 @@
 #include <regex>
 #include "license.h"
 
-#include "asio.hpp"
+#include "asio.hpp"  // NOLINT
 #include "sherpa-onnx/csrc/online-recognizer.h"
 #include "sherpa-onnx/csrc/online-stream.h"
 #include "sherpa-onnx/csrc/parse-options.h"

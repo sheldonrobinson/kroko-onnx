@@ -17,6 +17,7 @@ set(srcs
   offline-model-config.cc
   offline-moonshine-model-config.cc
   offline-nemo-enc-dec-ctc-model-config.cc
+  offline-omnilingual-asr-ctc-model-config.cc
   offline-paraformer-model-config.cc
   offline-punctuation.cc
   offline-recognizer.cc
@@ -42,6 +43,7 @@ set(srcs
   online-punctuation.cc
   online-recognizer.cc
   online-stream.cc
+  online-t-one-ctc-model-config.cc
   online-transducer-model-config.cc
   online-wenet-ctc-model-config.cc
   online-zipformer2-ctc-model-config.cc
@@ -72,6 +74,7 @@ if(SHERPA_ONNX_ENABLE_TTS)
     offline-tts-matcha-model-config.cc
     offline-tts-model-config.cc
     offline-tts-vits-model-config.cc
+    offline-tts-zipvoice-model-config.cc
     offline-tts.cc
   )
 endif()
@@ -114,6 +117,4 @@ if(SHERPA_ONNX_HAS_ALSA)
   endif()
 endif()
 
-install(TARGETS _sherpa_onnx
-  DESTINATION ../
-)
+install(TARGETS _sherpa_onnx DESTINATION lib)

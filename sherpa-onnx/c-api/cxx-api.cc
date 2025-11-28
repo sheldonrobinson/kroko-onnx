@@ -5,7 +5,10 @@
 
 #include <algorithm>
 #include <cstring>
+#include <memory>
+#include <string>
 #include <utility>
+#include <vector>
 
 namespace sherpa_onnx::cxx {
 
@@ -70,6 +73,7 @@ OnlineRecognizer OnlineRecognizer::Create(
       config.model_config.zipformer2_ctc.model.c_str();
 
   c.model_config.nemo_ctc.model = config.model_config.nemo_ctc.model.c_str();
+  c.model_config.t_one_ctc.model = config.model_config.t_one_ctc.model.c_str();
 
   c.model_config.tokens = config.model_config.tokens.c_str();
   c.model_config.num_threads = config.model_config.num_threads;
@@ -102,7 +106,6 @@ OnlineRecognizer OnlineRecognizer::Create(
   c.hotwords_buf = config.hotwords_buf.c_str();
   c.hotwords_buf_size = config.hotwords_buf.size();
 
-  c.hr.dict_dir = config.hr.dict_dir.c_str();
   c.hr.lexicon = config.hr.lexicon.c_str();
   c.hr.rule_fsts = config.hr.rule_fsts.c_str();
 
@@ -264,6 +267,11 @@ static SherpaOnnxOfflineRecognizerConfig Convert(
   c.model_config.canary.tgt_lang = config.model_config.canary.tgt_lang.c_str();
   c.model_config.canary.use_pnc = config.model_config.canary.use_pnc;
 
+  c.model_config.wenet_ctc.model = config.model_config.wenet_ctc.model.c_str();
+
+  c.model_config.omnilingual.model =
+      config.model_config.omnilingual.model.c_str();
+
   c.lm_config.model = config.lm_config.model.c_str();
   c.lm_config.scale = config.lm_config.scale;
 
@@ -277,7 +285,6 @@ static SherpaOnnxOfflineRecognizerConfig Convert(
 
   c.blank_penalty = config.blank_penalty;
 
-  c.hr.dict_dir = config.hr.dict_dir.c_str();
   c.hr.lexicon = config.hr.lexicon.c_str();
   c.hr.rule_fsts = config.hr.rule_fsts.c_str();
 
@@ -301,7 +308,7 @@ OfflineRecognizer::OfflineRecognizer(const SherpaOnnxOfflineRecognizer *p)
     : MoveOnly<OfflineRecognizer, SherpaOnnxOfflineRecognizer>(p) {}
 
 void OfflineRecognizer::Destroy(const SherpaOnnxOfflineRecognizer *p) const {
-  SherpaOnnxDestroyOfflineRecognizer(p_);
+  SherpaOnnxDestroyOfflineRecognizer(p);
 }
 
 OfflineStream OfflineRecognizer::CreateStream() const {
@@ -354,6 +361,11 @@ OfflineRecognizerResult OfflineRecognizer::GetResult(
     ans.lang = r->lang ? r->lang : "";
     ans.emotion = r->emotion ? r->emotion : "";
     ans.event = r->event ? r->event : "";
+
+    if (r->durations) {
+      ans.durations.resize(r->count);
+      std::copy(r->durations, r->durations + r->count, ans.durations.data());
+    }
   }
 
   SherpaOnnxDestroyOfflineRecognizerResult(r);
@@ -361,33 +373,10 @@ OfflineRecognizerResult OfflineRecognizer::GetResult(
   return ans;
 }
 
-std::shared_ptr<OfflineRecognizerResult> OfflineRecognizer::GetResultPtr(const OfflineStream *s) const
-{
-  auto r = SherpaOnnxGetOfflineStreamResult(s->Get());
-
-  OfflineRecognizerResult* ans = new OfflineRecognizerResult;
-  if (r) {
-    ans->text = r->text;
-
-    if (r->timestamps) {
-      ans->timestamps.resize(r->count);
-      std::copy(r->timestamps, r->timestamps + r->count, ans->timestamps.data());
-    }
-
-    ans->tokens.resize(r->count);
-    for (int32_t i = 0; i != r->count; ++i) {
-      ans->tokens[i] = r->tokens_arr[i];
-    }
-
-    ans->json = r->json;
-    ans->lang = r->lang ? r->lang : "";
-    ans->emotion = r->emotion ? r->emotion : "";
-    ans->event = r->event ? r->event : "";
-  }
-
-  SherpaOnnxDestroyOfflineRecognizerResult(r);
-
-  return std::shared_ptr<OfflineRecognizerResult>(ans);
+std::shared_ptr<OfflineRecognizerResult> OfflineRecognizer::GetResultPtr(
+    const OfflineStream *s) const {
+  auto r = GetResult(s);
+  return std::make_shared<OfflineRecognizerResult>(r);
 }
 
 OfflineTts OfflineTts::Create(const OfflineTtsConfig &config) {
@@ -401,7 +390,6 @@ OfflineTts OfflineTts::Create(const OfflineTtsConfig &config) {
   c.model.vits.noise_scale = config.model.vits.noise_scale;
   c.model.vits.noise_scale_w = config.model.vits.noise_scale_w;
   c.model.vits.length_scale = config.model.vits.length_scale;
-  c.model.vits.dict_dir = config.model.vits.dict_dir.c_str();
 
   c.model.matcha.acoustic_model = config.model.matcha.acoustic_model.c_str();
   c.model.matcha.vocoder = config.model.matcha.vocoder.c_str();
@@ -410,14 +398,12 @@ OfflineTts OfflineTts::Create(const OfflineTtsConfig &config) {
   c.model.matcha.data_dir = config.model.matcha.data_dir.c_str();
   c.model.matcha.noise_scale = config.model.matcha.noise_scale;
   c.model.matcha.length_scale = config.model.matcha.length_scale;
-  c.model.matcha.dict_dir = config.model.matcha.dict_dir.c_str();
 
   c.model.kokoro.model = config.model.kokoro.model.c_str();
   c.model.kokoro.voices = config.model.kokoro.voices.c_str();
   c.model.kokoro.tokens = config.model.kokoro.tokens.c_str();
   c.model.kokoro.data_dir = config.model.kokoro.data_dir.c_str();
   c.model.kokoro.length_scale = config.model.kokoro.length_scale;
-  c.model.kokoro.dict_dir = config.model.kokoro.dict_dir.c_str();
   c.model.kokoro.lexicon = config.model.kokoro.lexicon.c_str();
   c.model.kokoro.lang = config.model.kokoro.lang.c_str();
 
@@ -426,6 +412,18 @@ OfflineTts OfflineTts::Create(const OfflineTtsConfig &config) {
   c.model.kitten.tokens = config.model.kitten.tokens.c_str();
   c.model.kitten.data_dir = config.model.kitten.data_dir.c_str();
   c.model.kitten.length_scale = config.model.kitten.length_scale;
+
+  c.model.zipvoice.tokens = config.model.zipvoice.tokens.c_str();
+  c.model.zipvoice.text_model = config.model.zipvoice.text_model.c_str();
+  c.model.zipvoice.flow_matching_model =
+      config.model.zipvoice.flow_matching_model.c_str();
+  c.model.zipvoice.vocoder = config.model.zipvoice.vocoder.c_str();
+  c.model.zipvoice.data_dir = config.model.zipvoice.data_dir.c_str();
+  c.model.zipvoice.pinyin_dict = config.model.zipvoice.pinyin_dict.c_str();
+  c.model.zipvoice.feat_scale = config.model.zipvoice.feat_scale;
+  c.model.zipvoice.t_shift = config.model.zipvoice.t_shift;
+  c.model.zipvoice.target_rms = config.model.zipvoice.target_rms;
+  c.model.zipvoice.guidance_scale = config.model.zipvoice.guidance_scale;
 
   c.model.num_threads = config.model.num_threads;
   c.model.debug = config.model.debug;
@@ -484,8 +482,7 @@ std::shared_ptr<GeneratedAudio> OfflineTts::Generate2(
   ans->samples = std::move(audio.samples);
   ans->sample_rate = audio.sample_rate;
 
-  return std::shared_ptr<GeneratedAudio>(ans,
-                                         [](GeneratedAudio *p) { delete p; });
+  return std::shared_ptr<GeneratedAudio>(ans);
 }
 
 KeywordSpotter KeywordSpotter::Create(const KeywordSpotterConfig &config) {
@@ -593,7 +590,6 @@ KeywordResult KeywordSpotter::GetResult(const OnlineStream *s) const {
 
   return ans;
 }
-
 
 void KeywordSpotter::Reset(const OnlineStream *s) const {
   SherpaOnnxResetKeywordStream(p_, s->Get());
@@ -753,16 +749,9 @@ SpeechSegment VoiceActivityDetector::Front() const {
   return segment;
 }
 
-std::shared_ptr<SpeechSegment> VoiceActivityDetector::FrontPtr() const
-{
-  auto f = SherpaOnnxVoiceActivityDetectorFront(p_);
-
-  SpeechSegment* segment = new SpeechSegment;
-  segment->start = f->start;
-  segment->samples = std::vector<float>{f->samples, f->samples + f->n};
-
-  SherpaOnnxDestroySpeechSegment(f);
-  return std::shared_ptr<SpeechSegment>(segment);
+std::shared_ptr<SpeechSegment> VoiceActivityDetector::FrontPtr() const {
+  auto segment = Front();
+  return std::make_shared<SpeechSegment>(segment);
 }
 
 void VoiceActivityDetector::Reset() const {
@@ -824,7 +813,8 @@ bool FileExists(const std::string &filename) {
 // ============================================================
 // For Offline Punctuation
 // ============================================================
-OfflinePunctuation OfflinePunctuation::Create(const OfflinePunctuationConfig &config) {
+OfflinePunctuation OfflinePunctuation::Create(
+    const OfflinePunctuationConfig &config) {
   struct SherpaOnnxOfflinePunctuationConfig c;
   memset(&c, 0, sizeof(c));
   c.model.ct_transformer = config.model.ct_transformer.c_str();
@@ -832,12 +822,13 @@ OfflinePunctuation OfflinePunctuation::Create(const OfflinePunctuationConfig &co
   c.model.debug = config.model.debug;
   c.model.provider = config.model.provider.c_str();
 
-  const SherpaOnnxOfflinePunctuation *punct = SherpaOnnxCreateOfflinePunctuation(&c);
+  const SherpaOnnxOfflinePunctuation *punct =
+      SherpaOnnxCreateOfflinePunctuation(&c);
   return OfflinePunctuation(punct);
 }
 
 OfflinePunctuation::OfflinePunctuation(const SherpaOnnxOfflinePunctuation *p)
-  : MoveOnly<OfflinePunctuation, SherpaOnnxOfflinePunctuation>(p) {}
+    : MoveOnly<OfflinePunctuation, SherpaOnnxOfflinePunctuation>(p) {}
 
 void OfflinePunctuation::Destroy(const SherpaOnnxOfflinePunctuation *p) const {
   SherpaOnnxDestroyOfflinePunctuation(p);
@@ -848,6 +839,95 @@ std::string OfflinePunctuation::AddPunctuation(const std::string &text) const {
   std::string ans(result);
   SherpaOfflinePunctuationFreeText(result);
   return ans;
+}
+
+// ============================================================
+// For Online Punctuation
+// ============================================================
+OnlinePunctuation OnlinePunctuation::Create(
+    const OnlinePunctuationConfig &config) {
+  struct SherpaOnnxOnlinePunctuationConfig c;
+  memset(&c, 0, sizeof(c));
+  c.model.cnn_bilstm = config.model.cnn_bilstm.c_str();
+  c.model.bpe_vocab = config.model.bpe_vocab.c_str();
+  c.model.num_threads = config.model.num_threads;
+  c.model.debug = config.model.debug;
+  c.model.provider = config.model.provider.c_str();
+
+  const SherpaOnnxOnlinePunctuation *punct =
+      SherpaOnnxCreateOnlinePunctuation(&c);
+  return OnlinePunctuation(punct);
+}
+
+OnlinePunctuation::OnlinePunctuation(const SherpaOnnxOnlinePunctuation *p)
+    : MoveOnly<OnlinePunctuation, SherpaOnnxOnlinePunctuation>(p) {}
+
+void OnlinePunctuation::Destroy(const SherpaOnnxOnlinePunctuation *p) const {
+  SherpaOnnxDestroyOnlinePunctuation(p);
+}
+
+std::string OnlinePunctuation::AddPunctuation(const std::string &text) const {
+  const char *result = SherpaOnnxOnlinePunctuationAddPunct(p_, text.c_str());
+  std::string ans(result);
+  SherpaOnnxOnlinePunctuationFreeText(result);
+  return ans;
+}
+
+// ============================================================
+// For Audio tagging
+// ============================================================
+AudioTagging AudioTagging::Create(const AudioTaggingConfig &config) {
+  struct SherpaOnnxAudioTaggingConfig c;
+  memset(&c, 0, sizeof(c));
+
+  c.model.zipformer.model = config.model.zipformer.model.c_str();
+  c.model.ced = config.model.ced.c_str();
+  c.model.num_threads = config.model.num_threads;
+  c.model.debug = config.model.debug;
+  c.model.provider = config.model.provider.c_str();
+  c.labels = config.labels.c_str();
+  c.top_k = config.top_k;
+
+  const SherpaOnnxAudioTagging *tagger = SherpaOnnxCreateAudioTagging(&c);
+  return AudioTagging(tagger);
+}
+
+AudioTagging::AudioTagging(const SherpaOnnxAudioTagging *p)
+    : MoveOnly<AudioTagging, SherpaOnnxAudioTagging>(p) {}
+
+void AudioTagging::Destroy(const SherpaOnnxAudioTagging *p) const {
+  SherpaOnnxDestroyAudioTagging(p);
+}
+
+OfflineStream AudioTagging::CreateStream() const {
+  auto s = SherpaOnnxAudioTaggingCreateOfflineStream(p_);
+  return OfflineStream{s};
+}
+
+std::vector<AudioEvent> AudioTagging::Compute(const OfflineStream *s,
+                                              int32_t top_k /*= -1*/) {
+  auto events = SherpaOnnxAudioTaggingCompute(p_, s->Get(), top_k);
+  std::vector<AudioEvent> ans;
+
+  auto pe = events;
+  while (pe && *pe) {
+    AudioEvent e;
+    e.name = (*pe)->name;
+    e.index = (*pe)->index;
+    e.prob = (*pe)->prob;
+    ans.push_back(std::move(e));
+    ++pe;
+  }
+
+  SherpaOnnxAudioTaggingFreeResults(events);
+
+  return ans;
+}
+
+std::shared_ptr<std::vector<AudioEvent>> AudioTagging::ComputePtr(
+    const OfflineStream *s, int32_t top_k /*= -1*/) {
+  auto events = Compute(s, top_k);
+  return std::make_shared<std::vector<AudioEvent>>(events);
 }
 
 }  // namespace sherpa_onnx::cxx

@@ -104,6 +104,10 @@ SHERPA_ONNX_API typedef struct SherpaOnnxOnlineNemoCtcModelConfig {
   const char *model;
 } SherpaOnnxOnlineNemoCtcModelConfig;
 
+SHERPA_ONNX_API typedef struct SherpaOnnxOnlineToneCtcModelConfig {
+  const char *model;
+} SherpaOnnxOnlineToneCtcModelConfig;
+
 SHERPA_ONNX_API typedef struct SherpaOnnxOnlineModelConfig {
   SherpaOnnxOnlineTransducerModelConfig transducer;
   SherpaOnnxOnlineParaformerModelConfig paraformer;
@@ -125,6 +129,7 @@ SHERPA_ONNX_API typedef struct SherpaOnnxOnlineModelConfig {
   /// byte size excluding the trailing '\0'
   int32_t tokens_buf_size;
   SherpaOnnxOnlineNemoCtcModelConfig nemo_ctc;
+  SherpaOnnxOnlineToneCtcModelConfig t_one_ctc;
 } SherpaOnnxOnlineModelConfig;
 
 /// It expects 16 kHz 16-bit single channel wave format.
@@ -145,7 +150,7 @@ SHERPA_ONNX_API typedef struct SherpaOnnxOnlineCtcFstDecoderConfig {
 } SherpaOnnxOnlineCtcFstDecoderConfig;
 
 SHERPA_ONNX_API typedef struct SherpaOnnxHomophoneReplacerConfig {
-  const char *dict_dir;
+  const char *dict_dir;  // unused
   const char *lexicon;
   const char *rule_fsts;
 } SherpaOnnxHomophoneReplacerConfig;
@@ -471,6 +476,14 @@ SHERPA_ONNX_API typedef struct SherpaOnnxOfflineZipformerCtcModelConfig {
   const char *model;
 } SherpaOnnxOfflineZipformerCtcModelConfig;
 
+SHERPA_ONNX_API typedef struct SherpaOnnxOfflineWenetCtcModelConfig {
+  const char *model;
+} SherpaOnnxOfflineWenetCtcModelConfig;
+
+SHERPA_ONNX_API typedef struct SherpaOnnxOfflineOmnilingualAsrCtcModelConfig {
+  const char *model;
+} SherpaOnnxOfflineOmnilingualAsrCtcModelConfig;
+
 SHERPA_ONNX_API typedef struct SherpaOnnxOfflineModelConfig {
   SherpaOnnxOfflineTransducerModelConfig transducer;
   SherpaOnnxOfflineParaformerModelConfig paraformer;
@@ -496,6 +509,8 @@ SHERPA_ONNX_API typedef struct SherpaOnnxOfflineModelConfig {
   SherpaOnnxOfflineDolphinModelConfig dolphin;
   SherpaOnnxOfflineZipformerCtcModelConfig zipformer_ctc;
   SherpaOnnxOfflineCanaryModelConfig canary;
+  SherpaOnnxOfflineWenetCtcModelConfig wenet_ctc;
+  SherpaOnnxOfflineOmnilingualAsrCtcModelConfig omnilingual;
 } SherpaOnnxOfflineModelConfig;
 
 SHERPA_ONNX_API typedef struct SherpaOnnxOfflineRecognizerConfig {
@@ -631,6 +646,7 @@ SHERPA_ONNX_API typedef struct SherpaOnnxOfflineRecognizerResult {
    *     "text": "The recognition result",
    *     "tokens": [x, x, x],
    *     "timestamps": [x, x, x],
+   *     "durations": [x, x, x],
    *     "segment": x,
    *     "start_time": x,
    *     "is_final": true|false
@@ -646,6 +662,10 @@ SHERPA_ONNX_API typedef struct SherpaOnnxOfflineRecognizerResult {
 
   // return event.
   const char *event;
+
+  // Pointer to continuous memory which holds durations (in seconds) for each
+  // token It is NULL if the model does not support durations
+  float *durations;
 } SherpaOnnxOfflineRecognizerResult;
 
 /// Get the result of the offline stream.
@@ -1004,8 +1024,8 @@ SHERPA_ONNX_API typedef struct SherpaOnnxOfflineTtsVitsModelConfig {
 
   float noise_scale;
   float noise_scale_w;
-  float length_scale;  // < 1, faster in speech speed; > 1, slower in speed
-  const char *dict_dir;
+  float length_scale;    // < 1, faster in speech speed; > 1, slower in speed
+  const char *dict_dir;  // unused
 } SherpaOnnxOfflineTtsVitsModelConfig;
 
 SHERPA_ONNX_API typedef struct SherpaOnnxOfflineTtsMatchaModelConfig {
@@ -1016,8 +1036,8 @@ SHERPA_ONNX_API typedef struct SherpaOnnxOfflineTtsMatchaModelConfig {
   const char *data_dir;
 
   float noise_scale;
-  float length_scale;  // < 1, faster in speech speed; > 1, slower in speed
-  const char *dict_dir;
+  float length_scale;    // < 1, faster in speech speed; > 1, slower in speed
+  const char *dict_dir;  // unused
 } SherpaOnnxOfflineTtsMatchaModelConfig;
 
 SHERPA_ONNX_API typedef struct SherpaOnnxOfflineTtsKokoroModelConfig {
@@ -1026,8 +1046,8 @@ SHERPA_ONNX_API typedef struct SherpaOnnxOfflineTtsKokoroModelConfig {
   const char *tokens;
   const char *data_dir;
 
-  float length_scale;  // < 1, faster in speech speed; > 1, slower in speed
-  const char *dict_dir;
+  float length_scale;    // < 1, faster in speech speed; > 1, slower in speed
+  const char *dict_dir;  // unused
   const char *lexicon;
   const char *lang;
 } SherpaOnnxOfflineTtsKokoroModelConfig;
@@ -1041,6 +1061,19 @@ SHERPA_ONNX_API typedef struct SherpaOnnxOfflineTtsKittenModelConfig {
   float length_scale;  // < 1, faster in speech speed; > 1, slower in speed
 } SherpaOnnxOfflineTtsKittenModelConfig;
 
+SHERPA_ONNX_API typedef struct SherpaOnnxOfflineTtsZipvoiceModelConfig {
+  const char *tokens;
+  const char *text_model;
+  const char *flow_matching_model;
+  const char *vocoder;
+  const char *data_dir;
+  const char *pinyin_dict;
+  float feat_scale;
+  float t_shift;
+  float target_rms;
+  float guidance_scale;
+} SherpaOnnxOfflineTtsZipvoiceModelConfig;
+
 SHERPA_ONNX_API typedef struct SherpaOnnxOfflineTtsModelConfig {
   SherpaOnnxOfflineTtsVitsModelConfig vits;
   int32_t num_threads;
@@ -1049,6 +1082,7 @@ SHERPA_ONNX_API typedef struct SherpaOnnxOfflineTtsModelConfig {
   SherpaOnnxOfflineTtsMatchaModelConfig matcha;
   SherpaOnnxOfflineTtsKokoroModelConfig kokoro;
   SherpaOnnxOfflineTtsKittenModelConfig kitten;
+  SherpaOnnxOfflineTtsZipvoiceModelConfig zipvoice;
 } SherpaOnnxOfflineTtsModelConfig;
 
 SHERPA_ONNX_API typedef struct SherpaOnnxOfflineTtsConfig {
@@ -1133,6 +1167,14 @@ SHERPA_ONNX_API const SherpaOnnxGeneratedAudio *
 SherpaOnnxOfflineTtsGenerateWithCallbackWithArg(
     const SherpaOnnxOfflineTts *tts, const char *text, int32_t sid, float speed,
     SherpaOnnxGeneratedAudioCallbackWithArg callback, void *arg);
+
+SHERPA_ONNX_API const SherpaOnnxGeneratedAudio *
+SherpaOnnxOfflineTtsGenerateWithZipvoice(const SherpaOnnxOfflineTts *tts,
+                                         const char *text,
+                                         const char *prompt_text,
+                                         const float *prompt_samples,
+                                         int32_t n_prompt, int32_t prompt_sr,
+                                         float speed, int32_t num_steps);
 
 SHERPA_ONNX_API void SherpaOnnxDestroyOfflineTtsGeneratedAudio(
     const SherpaOnnxGeneratedAudio *p);

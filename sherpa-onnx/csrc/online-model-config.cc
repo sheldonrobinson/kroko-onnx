@@ -45,6 +45,7 @@ void OnlineModelConfig::Register(ParseOptions *po) {
   wenet_ctc.Register(po);
   zipformer2_ctc.Register(po);
   nemo_ctc.Register(po);
+  t_one_ctc.Register(po);
   provider_config.Register(po);
 
 #ifndef KROKO_MODEL
@@ -198,6 +199,10 @@ bool OnlineModelConfig::Validate() const {
     return nemo_ctc.Validate();
   }
 
+  if (!t_one_ctc.model.empty()) {
+    return t_one_ctc.Validate();
+  }
+
   if (!provider_config.Validate()) {
     return false;
   }
@@ -214,6 +219,7 @@ std::string OnlineModelConfig::ToString() const {
   os << "wenet_ctc=" << wenet_ctc.ToString() << ", ";
   os << "zipformer2_ctc=" << zipformer2_ctc.ToString() << ", ";
   os << "nemo_ctc=" << nemo_ctc.ToString() << ", ";
+  os << "t_one_ctc=" << t_one_ctc.ToString() << ", ";
   os << "provider_config=" << provider_config.ToString() << ", ";
   os << "tokens=\"" << tokens << "\", ";
   os << "num_threads=" << num_threads << ", ";

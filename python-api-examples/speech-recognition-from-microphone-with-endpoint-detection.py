@@ -22,7 +22,7 @@ except ImportError:
     print("to install it")
     sys.exit(-1)
 
-import kroko_onnx
+import sherpa_onnx
 
 
 def assert_file_exists(filename: str):
@@ -107,6 +107,20 @@ def get_args():
         """,
     )
 
+    parser.add_argument(
+        "--hr-lexicon",
+        type=str,
+        default="",
+        help="If not empty, it is the lexicon.txt for homophone replacer",
+    )
+
+    parser.add_argument(
+        "--hr-rule-fsts",
+        type=str,
+        default="",
+        help="If not empty, it is the replace.fst for homophone replacer",
+    )
+
     return parser.parse_args()
 
 
@@ -115,7 +129,7 @@ def create_recognizer(args):
     # Please replace the model files if needed.
     # See https://k2-fsa.github.io/sherpa/onnx/pretrained_models/index.html
     # for download links.
-    recognizer = kroko_onnx.OnlineRecognizer.from_transducer(
+    recognizer = sherpa_onnnx.OnlineRecognizer.from_transducer(
         model_path=args.model,
         key=args.key,
         referralcode=args.referralcode,
@@ -130,6 +144,13 @@ def create_recognizer(args):
         rule1_min_trailing_silence=2.4,
         rule2_min_trailing_silence=1.2,
         rule3_min_utterance_length=300,  # it essentially disables this rule
+        decoding_method=args.decoding_method,
+        provider=args.provider,
+        hotwords_file=args.hotwords_file,
+        hotwords_score=args.hotwords_score,
+        blank_penalty=args.blank_penalty,
+        hr_rule_fsts=args.hr_rule_fsts,
+        hr_lexicon=args.hr_lexicon,
     )
     return recognizer
 
@@ -156,7 +177,7 @@ def main():
 
     stream = recognizer.create_stream()
 
-    display = kroko_onnx.Display()
+    display = sherpa_onnx.Display()
 
     with sd.InputStream(channels=1, dtype="float32", samplerate=sample_rate) as s:
         while True:

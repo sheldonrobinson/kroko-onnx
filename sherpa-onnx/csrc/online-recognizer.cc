@@ -10,6 +10,7 @@
 #include <iomanip>
 #include <memory>
 #include <sstream>
+#include <string>
 #include <utility>
 #include <vector>
 
@@ -253,8 +254,7 @@ bool OnlineRecognizerConfig::Validate() const {
     }
   }
 
-  if (!hr.dict_dir.empty() && !hr.lexicon.empty() && !hr.rule_fsts.empty() &&
-      !hr.Validate()) {
+  if (!hr.lexicon.empty() && !hr.rule_fsts.empty() && !hr.Validate()) {
     return false;
   }
 

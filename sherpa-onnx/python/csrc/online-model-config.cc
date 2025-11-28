@@ -12,6 +12,7 @@
 #include "sherpa-onnx/csrc/provider-config.h"
 #include "sherpa-onnx/python/csrc/online-nemo-ctc-model-config.h"
 #include "sherpa-onnx/python/csrc/online-paraformer-model-config.h"
+#include "sherpa-onnx/python/csrc/online-t-one-ctc-model-config.h"
 #include "sherpa-onnx/python/csrc/online-transducer-model-config.h"
 #include "sherpa-onnx/python/csrc/online-wenet-ctc-model-config.h"
 #include "sherpa-onnx/python/csrc/online-zipformer2-ctc-model-config.h"
@@ -25,6 +26,7 @@ void PybindOnlineModelConfig(py::module *m) {
   PybindOnlineWenetCtcModelConfig(m);
   PybindOnlineZipformer2CtcModelConfig(m);
   PybindOnlineNeMoCtcModelConfig(m);
+  PybindOnlineToneCtcModelConfig(m);
   PybindProviderConfig(m);
 
   using PyClass = OnlineModelConfig;
@@ -34,11 +36,10 @@ void PybindOnlineModelConfig(py::module *m) {
                     const OnlineWenetCtcModelConfig &,
                     const OnlineZipformer2CtcModelConfig &,
                     const OnlineNeMoCtcModelConfig &,
-                    const ProviderConfig &,
-                    const std::string &, int32_t, int32_t,
-                    bool, const std::string &, const std::string &,
-                    const std::string &,
-		                const std::string &,
+                    const OnlineToneCtcModelConfig &, const ProviderConfig &,
+                    const std::string &, int32_t, int32_t, bool,
+                    const std::string &, const std::string &,
+                    const std::string &, const std::string &,
                     const std::string &,
                     const std::string &>(),
            py::arg("transducer") = OnlineTransducerModelConfig(),
@@ -46,8 +47,9 @@ void PybindOnlineModelConfig(py::module *m) {
            py::arg("wenet_ctc") = OnlineWenetCtcModelConfig(),
            py::arg("zipformer2_ctc") = OnlineZipformer2CtcModelConfig(),
            py::arg("nemo_ctc") = OnlineNeMoCtcModelConfig(),
-           py::arg("provider_config") = ProviderConfig(),
-           py::arg("tokens"), py::arg("num_threads"), py::arg("warm_up") = 0,
+           py::arg("t_one_ctc") = OnlineToneCtcModelConfig(),
+           py::arg("provider_config") = ProviderConfig(), py::arg("tokens"),
+           py::arg("num_threads"), py::arg("warm_up") = 0,
            py::arg("debug") = false, py::arg("model_type") = "",
            py::arg("modeling_unit") = "", py::arg("bpe_vocab") = "",
            py::arg("model_path") = "",
@@ -58,6 +60,7 @@ void PybindOnlineModelConfig(py::module *m) {
       .def_readwrite("wenet_ctc", &PyClass::wenet_ctc)
       .def_readwrite("zipformer2_ctc", &PyClass::zipformer2_ctc)
       .def_readwrite("nemo_ctc", &PyClass::nemo_ctc)
+      .def_readwrite("t_one_ctc", &PyClass::t_one_ctc)
       .def_readwrite("provider_config", &PyClass::provider_config)
       .def_readwrite("tokens", &PyClass::tokens)
       .def_readwrite("num_threads", &PyClass::num_threads)

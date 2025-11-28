@@ -1,7 +1,9 @@
 // scripts/node-addon-api/src/streaming-asr.cc
 //
 // Copyright (c)  2024  Xiaomi Corporation
+#include <memory>
 #include <sstream>
+#include <string>
 
 #include "macros.h"  // NOLINT
 #include "napi.h"    // NOLINT
@@ -89,6 +91,22 @@ static SherpaOnnxOnlineNemoCtcModelConfig GetOnlineNemoCtcModelConfig(
   return c;
 }
 
+static SherpaOnnxOnlineToneCtcModelConfig GetOnlineToneCtcModelConfig(
+    Napi::Object obj) {
+  SherpaOnnxOnlineToneCtcModelConfig c;
+  memset(&c, 0, sizeof(c));
+
+  if (!obj.Has("toneCtc") || !obj.Get("toneCtc").IsObject()) {
+    return c;
+  }
+
+  Napi::Object o = obj.Get("toneCtc").As<Napi::Object>();
+
+  SHERPA_ONNX_ASSIGN_ATTR_STR(model, model);
+
+  return c;
+}
+
 static SherpaOnnxOnlineParaformerModelConfig GetOnlineParaformerModelConfig(
     Napi::Object obj) {
   SherpaOnnxOnlineParaformerModelConfig c;
@@ -120,6 +138,7 @@ SherpaOnnxOnlineModelConfig GetOnlineModelConfig(Napi::Object obj) {
   c.paraformer = GetOnlineParaformerModelConfig(o);
   c.zipformer2_ctc = GetOnlineZipformer2CtcModelConfig(o);
   c.nemo_ctc = GetOnlineNemoCtcModelConfig(o);
+  c.t_one_ctc = GetOnlineToneCtcModelConfig(o);
 
   SHERPA_ONNX_ASSIGN_ATTR_STR(tokens, tokens);
   SHERPA_ONNX_ASSIGN_ATTR_INT32(num_threads, numThreads);
@@ -172,7 +191,6 @@ SherpaOnnxHomophoneReplacerConfig GetHomophoneReplacerConfig(Napi::Object obj) {
 
   Napi::Object o = obj.Get("hr").As<Napi::Object>();
 
-  SHERPA_ONNX_ASSIGN_ATTR_STR(dict_dir, dictDir);
   SHERPA_ONNX_ASSIGN_ATTR_STR(lexicon, lexicon);
   SHERPA_ONNX_ASSIGN_ATTR_STR(rule_fsts, ruleFsts);
 
@@ -265,6 +283,7 @@ static Napi::External<SherpaOnnxOnlineRecognizer> CreateOnlineRecognizerWrapper(
   SHERPA_ONNX_DELETE_C_STR(c.model_config.paraformer.encoder);
   SHERPA_ONNX_DELETE_C_STR(c.model_config.paraformer.decoder);
 
+  SHERPA_ONNX_DELETE_C_STR(c.model_config.t_one_ctc.model);
   SHERPA_ONNX_DELETE_C_STR(c.model_config.nemo_ctc.model);
   SHERPA_ONNX_DELETE_C_STR(c.model_config.zipformer2_ctc.model);
   SHERPA_ONNX_DELETE_C_STR(c.model_config.tokens);
@@ -280,7 +299,6 @@ static Napi::External<SherpaOnnxOnlineRecognizer> CreateOnlineRecognizerWrapper(
   SHERPA_ONNX_DELETE_C_STR(c.hotwords_buf);
   SHERPA_ONNX_DELETE_C_STR(c.ctc_fst_decoder_config.graph);
 
-  SHERPA_ONNX_DELETE_C_STR(c.hr.dict_dir);
   SHERPA_ONNX_DELETE_C_STR(c.hr.lexicon);
   SHERPA_ONNX_DELETE_C_STR(c.hr.rule_fsts);
 

@@ -27,7 +27,7 @@ import sys
 from pathlib import Path
 
 import numpy as np
-import kroko_onnx
+import sherpa_onnx
 
 
 def assert_file_exists(filename: str):
@@ -104,6 +104,20 @@ def get_args():
         """,
     )
 
+    parser.add_argument(
+        "--hr-lexicon",
+        type=str,
+        default="",
+        help="If not empty, it is the lexicon.txt for homophone replacer",
+    )
+
+    parser.add_argument(
+        "--hr-rule-fsts",
+        type=str,
+        default="",
+        help="If not empty, it is the replace.fst for homophone replacer",
+    )
+
     return parser.parse_args()
 
 
@@ -111,7 +125,7 @@ def create_recognizer(args):
     # Please replace the model files if needed.
     # See https://k2-fsa.github.io/sherpa/onnx/pretrained_models/index.html
     # for download links.
-    recognizer = kroko_onnx.OnlineRecognizer.from_transducer(
+    recognizer = sherpa_onnx.OnlineRecognizer.from_transducer(
         model_path=args.model,
         key=args.key,
         referralcode=args.referralcode,
@@ -122,6 +136,8 @@ def create_recognizer(args):
         hotwords_file=args.hotwords_file,
         hotwords_score=args.hotwords_score,
         modeling_unit=args.modeling_unit,
+        hr_rule_fsts=args.hr_rule_fsts,
+        hr_lexicon=args.hr_lexicon,
     )
     return recognizer
 
@@ -155,7 +171,7 @@ def main():
 
     stream = recognizer.create_stream()
 
-    display = kroko_onnx.Display()
+    display = sherpa_onnx.Display()
 
     print("Started!")
     while True:

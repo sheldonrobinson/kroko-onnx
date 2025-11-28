@@ -12,6 +12,8 @@ public class OfflineModelConfig {
     private final OfflineSenseVoiceModelConfig senseVoice;
     private final OfflineDolphinModelConfig dolphin;
     private final OfflineZipformerCtcModelConfig zipformerCtc;
+    private final OfflineWenetCtcModelConfig wenetCtc;
+    private final OfflineOmnilingualAsrCtcModelConfig omnilingual;
     private final OfflineCanaryModelConfig canary;
     private final String teleSpeech;
     private final String tokens;
@@ -32,6 +34,8 @@ public class OfflineModelConfig {
         this.nemo = builder.nemo;
         this.zipformerCtc = builder.zipformerCtc;
         this.canary = builder.canary;
+        this.wenetCtc = builder.wenetCtc;
+        this.omnilingual = builder.omnilingual;
         this.senseVoice = builder.senseVoice;
         this.dolphin = builder.dolphin;
         this.teleSpeech = builder.teleSpeech;
@@ -80,6 +84,14 @@ public class OfflineModelConfig {
         return zipformerCtc;
     }
 
+    public OfflineWenetCtcModelConfig getWenetCtc() {
+        return wenetCtc;
+    }
+
+    public OfflineOmnilingualAsrCtcModelConfig getOmnilingual() {
+        return omnilingual;
+    }
+
     public OfflineCanaryModelConfig getCanary() {
         return canary;
     }
@@ -126,6 +138,8 @@ public class OfflineModelConfig {
         private OfflineSenseVoiceModelConfig senseVoice = OfflineSenseVoiceModelConfig.builder().build();
         private OfflineDolphinModelConfig dolphin = OfflineDolphinModelConfig.builder().build();
         private OfflineZipformerCtcModelConfig zipformerCtc = OfflineZipformerCtcModelConfig.builder().build();
+        private OfflineWenetCtcModelConfig wenetCtc = OfflineWenetCtcModelConfig.builder().build();
+        private OfflineOmnilingualAsrCtcModelConfig omnilingual = OfflineOmnilingualAsrCtcModelConfig.builder().build();
         private OfflineCanaryModelConfig canary = OfflineCanaryModelConfig.builder().build();
         private String teleSpeech = "";
         private String tokens = "";
@@ -162,6 +176,16 @@ public class OfflineModelConfig {
 
         public Builder setZipformerCtc(OfflineZipformerCtcModelConfig zipformerCtc) {
             this.zipformerCtc = zipformerCtc;
+            return this;
+        }
+
+        public Builder setWenetCtc(OfflineWenetCtcModelConfig wenetCtc) {
+            this.wenetCtc = wenetCtc;
+            return this;
+        }
+
+        public Builder setOmnilingual(OfflineOmnilingualAsrCtcModelConfig omnilingual) {
+            this.omnilingual = omnilingual;
             return this;
         }
 
