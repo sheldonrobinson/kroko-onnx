@@ -357,12 +357,6 @@ if(SHERPA_ONNX_ENABLE_RKNN)
   endif()
 endif()
 
-
-if((BUILD_SHARED_LIBS OR SHERPA_ONNX_USE_PRE_INSTALLED_ONNXRUNTIME_IF_AVAILABLE) AND NOT DEFINED onnxruntime_lib_files)
-  target_link_libraries(sherpa-onnx-core onnxruntime)
-else()
-  target_link_libraries(sherpa-onnx-core ${onnxruntime_lib_files})
-endif()
 if(SHERPA_ONNX_ENABLE_ASCEND_NPU)
     target_include_directories(sherpa-onnx-core PRIVATE ${ASCEND_TOOLKIT_HOME}/include)
     target_link_libraries(sherpa-onnx-core
@@ -373,6 +367,20 @@ endif()
 
 if(SHERPA_ONNX_ENABLE_QNN)
   target_include_directories(sherpa-onnx-core PRIVATE ${QNN_SDK_ROOT}/include/QNN)
+endif()
+
+if(SHERPA_ONNX_ENABLE_SPACEMIT)
+  if(TARGET spacemit_ep)
+    target_link_libraries(sherpa-onnx-core spacemit_ep)
+  else()
+    target_link_libraries(sherpa-onnx-core ${spacemit_ep_lib_files})
+  endif()
+endif()
+
+if((BUILD_SHARED_LIBS OR SHERPA_ONNX_USE_PRE_INSTALLED_ONNXRUNTIME_IF_AVAILABLE) AND NOT DEFINED onnxruntime_lib_files)
+  target_link_libraries(sherpa-onnx-core onnxruntime)
+else()
+  target_link_libraries(sherpa-onnx-core ${onnxruntime_lib_files})
 endif()
 
 if(NOT WIN32)
