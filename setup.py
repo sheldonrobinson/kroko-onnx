@@ -75,10 +75,10 @@ setuptools.setup(
     name=package_name,
     python_requires=">=3.7",
     version=get_package_version(),
-    author="The sherpa-onnx development team",
-    author_email="dpovey@gmail.com",
+    author="The Kroko AI team",
+    author_email="yello@banafo.comm",
     package_dir={
-        "sherpa_onnx": "sherpa-onnx/python/sherpa_onnx",
+        "kroko_onnx": "sherpa-onnx/python/sherpa_onnx",
     },
     packages=["sherpa_onnx"],
     data_files=(

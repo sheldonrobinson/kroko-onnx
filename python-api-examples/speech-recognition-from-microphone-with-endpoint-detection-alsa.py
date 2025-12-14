@@ -7,7 +7,8 @@
 # for embedding Linux systems and for running Linux on Windows using WSL.
 #
 # Please refer to
-# https://k2-fsa.github.io/sherpa/onnx/pretrained_models/index.html
+# https://app.kroko.ai - Pro models
+# https://huggingface.co/Banafo/Kroko-ASR - Free models
 # to download pre-trained models
 
 import argparse
@@ -30,31 +31,23 @@ def get_args():
     )
 
     parser.add_argument(
-        "--tokens",
+        "--model",
         type=str,
-        required=True,
-        help="Path to tokens.txt",
+        help="Path to the kroko model",
     )
 
     parser.add_argument(
-        "--encoder",
+        "--key",
         type=str,
-        required=True,
-        help="Path to the encoder model",
+        default="",
+        help="License key needed only for Pro models",
     )
 
     parser.add_argument(
-        "--decoder",
+        "--referralcode",
         type=str,
-        required=True,
-        help="Path to the decoder model",
-    )
-
-    parser.add_argument(
-        "--joiner",
-        type=str,
-        required=True,
-        help="Path to the joiner model",
+        default="",
+        help="Project referral code - for future revenue sharing options. Contact us for info.",
     )
 
     parser.add_argument(
@@ -149,29 +142,24 @@ as the device_name.
 
 
 def create_recognizer(args):
-    assert_file_exists(args.encoder)
-    assert_file_exists(args.decoder)
-    assert_file_exists(args.joiner)
-    assert_file_exists(args.tokens)
+    assert_file_exists(args.model)
     # Please replace the model files if needed.
-    # See https://k2-fsa.github.io/sherpa/onnx/pretrained_models/index.html
+    # https://app.kroko.ai - Pro models
+    # https://huggingface.co/Banafo/Kroko-ASR - Free models
     # for download links.
     recognizer = sherpa_onnx.OnlineRecognizer.from_transducer(
-        tokens=args.tokens,
-        encoder=args.encoder,
-        decoder=args.decoder,
-        joiner=args.joiner,
-        num_threads=1,
+        model_path=args.model,
+        key=args.key,
+        referralcode=args.referralcode,
+        num_threads=args.num_threads,
+        provider=args.provider,
         sample_rate=16000,
         feature_dim=80,
-        enable_endpoint_detection=True,
-        rule1_min_trailing_silence=2.4,
-        rule2_min_trailing_silence=1.2,
-        rule3_min_utterance_length=300,  # it essentially disables this rule
         decoding_method=args.decoding_method,
-        provider=args.provider,
+        max_active_paths=args.max_active_paths,
         hotwords_file=args.hotwords_file,
         hotwords_score=args.hotwords_score,
+        modeling_unit=args.modeling_unit,
         blank_penalty=args.blank_penalty,
         hr_rule_fsts=args.hr_rule_fsts,
         hr_lexicon=args.hr_lexicon,

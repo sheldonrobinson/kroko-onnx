@@ -1,3 +1,6 @@
+## **Open-source speech recognition built for developers.**
+>
+> Our engine is fully open-source, and you choose how to deploy models: use our **CC-BY-SA licensed community models** or upgrade to **commercial models** with premium performance. We focus on building **fast, high-quality production models** and providing **examples that take the guesswork out** of integration.
  ### Supported functions
 
 |Speech recognition| [Speech synthesis][tts-url] | [Source separation][ss-url] |
@@ -191,205 +194,313 @@ We also have spaces built using WebAssembly. They are listed below:
 | macOS (arm64)                            | [Address][flutter-tts-macos-arm64] | [点此][flutter-tts-macos-arm64-cn]   |
 | Windows (x64)                            | [Address][flutter-tts-win-x64]     | [点此][flutter-tts-win-x64-cn]     |
 
-> Note: You need to build from source for iOS.
+## Demos
 
-</details>
+### ▶️ Android App
+Run speech recognition **natively on your phone** using ONNX Runtime.
 
-### Links for pre-built Lazarus APPs
+### 🌐 Browser (WASM)
+Experience transcription **directly in your browser**, no server required.
+- [Hugging Face Spaces Demo](https://huggingface.co/spaces/Banafo/Kroko-Streaming-ASR-Wasm)
+## Documentation
 
-<details>
+Full documentation could be found [here](https://docs.kroko.ai/on-premise/#)
 
-#### Generating subtitles
+## Our Community
 
-| Description                    | URL                        | 中国用户                   |
-|--------------------------------|----------------------------|----------------------------|
-| Generate subtitles (生成字幕)  | [Address][lazarus-subtitle]| [点此][lazarus-subtitle-cn]|
+Join the Kroko community to learn, share, and contribute:
 
-</details>
+- 💬 **[Discord](https://discord.gg/JT7wdtnK79)** – chat with developers, ask questions, and share projects.  
+- 📢 **[Reddit](https://www.reddit.com/r/kroko_ai/)** – join discussions, showcase your integrations, and follow updates.
+- 🤗 **[Hugging Face](https://huggingface.co/Banafo/Kroko-ASR)** – explore our models, try live demos, and contribute feedback.
 
-### Links for pre-trained models
+---
 
-<details>
+## Table of Contents
 
-| Description                                 | URL                                                                                   |
-|---------------------------------------------|---------------------------------------------------------------------------------------|
-| Speech recognition (speech to text, ASR)    | [Address][asr-models]                                                                 |
-| Text-to-speech (TTS)                        | [Address][tts-models]                                                                 |
-| VAD                                         | [Address][vad-models]                                                                 |
-| Keyword spotting                            | [Address][kws-models]                                                                 |
-| Audio tagging                               | [Address][at-models]                                                                  |
-| Speaker identification (Speaker ID)         | [Address][sid-models]                                                                 |
-| Spoken language identification (Language ID)| See multi-lingual [Whisper][Whisper] ASR models from  [Speech recognition][asr-models]|
-| Punctuation                                 | [Address][punct-models]                                                               |
-| Speaker segmentation                        | [Address][speaker-segmentation-models]                                                |
-| Speech enhancement                          | [Address][speech-enhancement-models]                                                  |
-| Source separation                           | [Address][source-separation-models]                                                  |
+1. [Building `kroko-onnx`](#1-building-kroko-onnx)  
+   1.1 [Linux (x64 or arm64)](#linux-x64-or-arm64)  
+   1.2 [Docker](#docker)  
+   1.3 [Python](#python)  
 
-</details>
+2. [Usage Examples (WebSocket Server)](#2-usage-examples-websocket-server)  
+   2.1 [WebSocket Server Format](#websocket-server-format)  
+   &nbsp;&nbsp;&nbsp;&nbsp;2.1.1 [Input](#input)  
+   &nbsp;&nbsp;&nbsp;&nbsp;2.1.2 [Output](#output)  
+   &nbsp;&nbsp;&nbsp;&nbsp;2.1.3 [Output Fields](#output-fields)  
 
-#### Some pre-trained ASR models (Streaming)
+3. [Using `kroko-onnx` from Python](#3-using-kroko-onnx-from-python)  
+   3.1 [Import and Create a Recognizer](#import-and-create-a-recognizer)  
+   3.2 [Parameter Reference](#parameter-reference)  
+   3.3 [Running the Recognizer on Audio Files](#running-the-recognizer-on-audio-files)
 
-<details>
+---
 
-Please see
+## 1. Building `kroko-onnx`
 
-  - <https://k2-fsa.github.io/sherpa/onnx/pretrained_models/online-transducer/index.html>
-  - <https://k2-fsa.github.io/sherpa/onnx/pretrained_models/online-paraformer/index.html>
-  - <https://k2-fsa.github.io/sherpa/onnx/pretrained_models/online-ctc/index.html>
+### Linux (x64 or arm64)
 
-for more models. The following table lists only **SOME** of them.
+```bash
+git clone https://github.com/orgs/kroko-ai/kroko-onnx
+cd kroko-onnx
+mkdir build
+cd build
 
+# By default, it builds static libraries and uses static link and works only with Kroko free models
+cmake -DCMAKE_BUILD_TYPE=Release ..
 
-|Name | Supported Languages| Description|
-|-----|-----|----|
-|[sherpa-onnx-streaming-zipformer-bilingual-zh-en-2023-02-20][sherpa-onnx-streaming-zipformer-bilingual-zh-en-2023-02-20]| Chinese, English| See [also](https://k2-fsa.github.io/sherpa/onnx/pretrained_models/online-transducer/zipformer-transducer-models.html#csukuangfj-sherpa-onnx-streaming-zipformer-bilingual-zh-en-2023-02-20-bilingual-chinese-english)|
-|[sherpa-onnx-streaming-zipformer-small-bilingual-zh-en-2023-02-16][sherpa-onnx-streaming-zipformer-small-bilingual-zh-en-2023-02-16]| Chinese, English| See [also](https://k2-fsa.github.io/sherpa/onnx/pretrained_models/online-transducer/zipformer-transducer-models.html#sherpa-onnx-streaming-zipformer-small-bilingual-zh-en-2023-02-16-bilingual-chinese-english)|
-|[sherpa-onnx-streaming-zipformer-zh-14M-2023-02-23][sherpa-onnx-streaming-zipformer-zh-14M-2023-02-23]|Chinese| Suitable for Cortex A7 CPU. See [also](https://k2-fsa.github.io/sherpa/onnx/pretrained_models/online-transducer/zipformer-transducer-models.html#sherpa-onnx-streaming-zipformer-zh-14m-2023-02-23)|
-|[sherpa-onnx-streaming-zipformer-en-20M-2023-02-17][sherpa-onnx-streaming-zipformer-en-20M-2023-02-17]|English|Suitable for Cortex A7 CPU. See [also](https://k2-fsa.github.io/sherpa/onnx/pretrained_models/online-transducer/zipformer-transducer-models.html#sherpa-onnx-streaming-zipformer-en-20m-2023-02-17)|
-|[sherpa-onnx-streaming-zipformer-korean-2024-06-16][sherpa-onnx-streaming-zipformer-korean-2024-06-16]|Korean| See [also](https://k2-fsa.github.io/sherpa/onnx/pretrained_models/online-transducer/zipformer-transducer-models.html#sherpa-onnx-streaming-zipformer-korean-2024-06-16-korean)|
-|[sherpa-onnx-streaming-zipformer-fr-2023-04-14][sherpa-onnx-streaming-zipformer-fr-2023-04-14]|French| See [also](https://k2-fsa.github.io/sherpa/onnx/pretrained_models/online-transducer/zipformer-transducer-models.html#shaojieli-sherpa-onnx-streaming-zipformer-fr-2023-04-14-french)|
+# To build it with an option to use Kroko Pro models
+cmake -DCMAKE_BUILD_TYPE=Release -DKROKO_LICENSE=ON ..
 
-</details>
+make -j6
+```
 
+> ⚠️ **IMPORTANT:** If you build with the license option enabled (`-DKROKO_LICENSE=ON`), and later want to switch back to a license-free build,  
+> you **must delete the `build/` directory** first, or explicitly rerun `cmake` with `-DKROKO_LICENSE=OFF` to clear the CMake cache.  
+> Otherwise, the license configuration may persist in the build.
 
-#### Some pre-trained ASR models (Non-Streaming)
+After building, you will find the executable `kroko-onnx-online-websocket-server` inside the `bin` directory.
 
-<details>
+> For GPU builds, refer to:  
+> [Sherpa-ONNX GPU Install Guide](https://k2-fsa.github.io/sherpa/onnx/install/linux.html)
 
-Please see
+---
 
-  - <https://k2-fsa.github.io/sherpa/onnx/pretrained_models/offline-transducer/index.html>
-  - <https://k2-fsa.github.io/sherpa/onnx/pretrained_models/offline-paraformer/index.html>
-  - <https://k2-fsa.github.io/sherpa/onnx/pretrained_models/offline-ctc/index.html>
-  - <https://k2-fsa.github.io/sherpa/onnx/pretrained_models/telespeech/index.html>
-  - <https://k2-fsa.github.io/sherpa/onnx/pretrained_models/whisper/index.html>
+### Docker
 
-for more models. The following table lists only **SOME** of them.
+```bash
+git clone https://github.com/kroko-ai/kroko-onnx.git
+cd kroko-onnx
 
-|Name | Supported Languages| Description|
-|-----|-----|----|
-|[sherpa-onnx-nemo-parakeet-tdt-0.6b-v2-int8](https://k2-fsa.github.io/sherpa/onnx/pretrained_models/offline-transducer/nemo-transducer-models.html#sherpa-onnx-nemo-parakeet-tdt-0-6b-v2-int8-english)| English | It is converted from <https://huggingface.co/nvidia/parakeet-tdt-0.6b-v2>|
-|[Whisper tiny.en](https://github.com/k2-fsa/sherpa-onnx/releases/download/asr-models/sherpa-onnx-whisper-tiny.en.tar.bz2)|English| See [also](https://k2-fsa.github.io/sherpa/onnx/pretrained_models/whisper/tiny.en.html)|
-|[Moonshine tiny][Moonshine tiny]|English|See [also](https://github.com/usefulsensors/moonshine)|
-|[sherpa-onnx-zipformer-ctc-zh-int8-2025-07-03](https://k2-fsa.github.io/sherpa/onnx/pretrained_models/offline-ctc/icefall/zipformer.html#sherpa-onnx-zipformer-ctc-zh-int8-2025-07-03-chinese)|Chinese| A Zipformer CTC model|
-|[sherpa-onnx-sense-voice-zh-en-ja-ko-yue-2024-07-17][sherpa-onnx-sense-voice-zh-en-ja-ko-yue-2024-07-17]|Chinese, Cantonese, English, Korean, Japanese| 支持多种中文方言. See [also](https://k2-fsa.github.io/sherpa/onnx/sense-voice/index.html)|
-|[sherpa-onnx-paraformer-zh-2024-03-09][sherpa-onnx-paraformer-zh-2024-03-09]|Chinese, English| 也支持多种中文方言. See [also](https://k2-fsa.github.io/sherpa/onnx/pretrained_models/offline-paraformer/paraformer-models.html#csukuangfj-sherpa-onnx-paraformer-zh-2024-03-09-chinese-english)|
-|[sherpa-onnx-zipformer-ja-reazonspeech-2024-08-01][sherpa-onnx-zipformer-ja-reazonspeech-2024-08-01]|Japanese|See [also](https://k2-fsa.github.io/sherpa/onnx/pretrained_models/offline-transducer/zipformer-transducer-models.html#sherpa-onnx-zipformer-ja-reazonspeech-2024-08-01-japanese)|
-|[sherpa-onnx-nemo-transducer-giga-am-russian-2024-10-24][sherpa-onnx-nemo-transducer-giga-am-russian-2024-10-24]|Russian|See [also](https://k2-fsa.github.io/sherpa/onnx/pretrained_models/offline-transducer/nemo-transducer-models.html#sherpa-onnx-nemo-transducer-giga-am-russian-2024-10-24-russian)|
-|[sherpa-onnx-nemo-ctc-giga-am-russian-2024-10-24][sherpa-onnx-nemo-ctc-giga-am-russian-2024-10-24]|Russian| See [also](https://k2-fsa.github.io/sherpa/onnx/pretrained_models/offline-ctc/nemo/russian.html#sherpa-onnx-nemo-ctc-giga-am-russian-2024-10-24)|
-|[sherpa-onnx-zipformer-ru-2024-09-18][sherpa-onnx-zipformer-ru-2024-09-18]|Russian|See [also](https://k2-fsa.github.io/sherpa/onnx/pretrained_models/offline-transducer/zipformer-transducer-models.html#sherpa-onnx-zipformer-ru-2024-09-18-russian)|
-|[sherpa-onnx-zipformer-korean-2024-06-24][sherpa-onnx-zipformer-korean-2024-06-24]|Korean|See [also](https://k2-fsa.github.io/sherpa/onnx/pretrained_models/offline-transducer/zipformer-transducer-models.html#sherpa-onnx-zipformer-korean-2024-06-24-korean)|
-|[sherpa-onnx-zipformer-thai-2024-06-20][sherpa-onnx-zipformer-thai-2024-06-20]|Thai| See [also](https://k2-fsa.github.io/sherpa/onnx/pretrained_models/offline-transducer/zipformer-transducer-models.html#sherpa-onnx-zipformer-thai-2024-06-20-thai)|
-|[sherpa-onnx-telespeech-ctc-int8-zh-2024-06-04][sherpa-onnx-telespeech-ctc-int8-zh-2024-06-04]|Chinese| 支持多种方言. See [also](https://k2-fsa.github.io/sherpa/onnx/pretrained_models/telespeech/models.html#sherpa-onnx-telespeech-ctc-int8-zh-2024-06-04)|
+# For Kroko free models
+docker build -t kroko-onnx .
 
-</details>
+# For Kroko Pro models
+docker build -t kroko-onnx --build-arg KROKO_LICENSE=ON .
+```
 
-### Useful links
+After building, you will find the executable `kroko-onnx-online-websocket-server` and the `kroko-onnx` Python package installed.
 
-- Documentation: https://k2-fsa.github.io/sherpa/onnx/
-- Bilibili 演示视频: https://search.bilibili.com/all?keyword=%E6%96%B0%E4%B8%80%E4%BB%A3Kaldi
+---
 
-### How to reach us
+### Python
 
-Please see
-https://k2-fsa.github.io/sherpa/social-groups.html
-for 新一代 Kaldi **微信交流群** and **QQ 交流群**.
+```bash
+git clone https://github.com/kroko-ai/kroko-onnx
+cd kroko-onnx
 
-## Projects using sherpa-onnx
+# For Kroko free models
+pip install .
 
-### [BreezeApp](https://github.com/mtkresearch/BreezeApp) from [MediaTek Research](https://github.com/mtkresearch)
+# For Kroko Pro models
+KROKO_LICENSE=ON pip install .
+```
 
-> BreezeAPP is a mobile AI application developed for both Android and iOS platforms.
-> Users can download it directly from the App Store and enjoy a variety of features
-> offline, including speech-to-text, text-to-speech, text-based chatbot interactions,
-> and image question-answering
+After installation, you can use the `kroko-onnx` Python package.
 
-  - [Download APK for BreezeAPP](https://huggingface.co/MediaTek-Research/BreezeApp/resolve/main/BreezeApp.apk)
-  - [APK 中国镜像](https://hf-mirror.com/MediaTek-Research/BreezeApp/blob/main/BreezeApp.apk)
+> 🛠️ Windows and macOS build instructions coming soon!
 
-| 1 | 2 | 3 |
-|---|---|---|
-|![](https://github.com/user-attachments/assets/1cdbc057-b893-4de6-9e9c-f1d7dfd1d992)|![](https://github.com/user-attachments/assets/d77cd98e-b057-442f-860d-d5befd5c769b)|![](https://github.com/user-attachments/assets/57e546bf-3d39-45b9-b392-b48ca4fb3c58)|
+---
 
-### [Open-LLM-VTuber](https://github.com/t41372/Open-LLM-VTuber)
+## 2. Usage Examples (WebSocket Server)
 
-Talk to any LLM with hands-free voice interaction, voice interruption, and Live2D taking
-face running locally across platforms
+```bash
+./kroko-onnx-online-websocket-server --key=LICENSE_KEY --model=/path/to/model.data
+```
 
-See also <https://github.com/t41372/Open-LLM-VTuber/pull/50>
+Starts the server listening on the **default port (6006)**.
 
-### [voiceapi](https://github.com/ruzhila/voiceapi)
+```bash
+./kroko-onnx-online-websocket-server --key=LICENSE_KEY --port=6007 --model=/path/to/model.data
+```
 
-<details>
-  <summary>Streaming ASR and TTS based on FastAPI</summary>
+Starts the server listening on a **specified port**.
 
+```bash
+./kroko-onnx-online-websocket-server --help
+```
 
-It shows how to use the ASR and TTS Python APIs with FastAPI.
-</details>
+Shows the full list of parameters.
 
-### [腾讯会议摸鱼工具 TMSpeech](https://github.com/jxlpzqc/TMSpeech)
+---
 
-Uses streaming ASR in C# with graphical user interface.
+### WebSocket Server Format
 
-Video demo in Chinese: [【开源】Windows实时字幕软件（网课/开会必备）](https://www.bilibili.com/video/BV1rX4y1p7Nx)
+#### Input
 
-### [lol互动助手](https://github.com/l1veIn/lol-wom-electron)
+- The samples should be **16kHz**, **single channel**, and **16-bit**.
+- The WebSocket connection accepts a buffer in the following format:
+  - `data`: float32 buffer
 
-It uses the JavaScript API of sherpa-onnx along with [Electron](https://electronjs.org/)
+##### Python Example: Convert Audio to Float32 Buffer
 
-Video demo in Chinese: [爆了！炫神教你开打字挂！真正影响胜率的英雄联盟工具！英雄联盟的最后一块拼图！和游戏中的每个人无障碍沟通！](https://www.bilibili.com/video/BV142tje9E74)
+```python
+samples = f.readframes(num_samples)
+samples_int16 = np.frombuffer(samples, dtype=np.int16)
+samples_float32 = samples_int16.astype(np.float32)
+buf = samples_float32.tobytes()
+```
 
-### [Sherpa-ONNX 语音识别服务器](https://github.com/hfyydd/sherpa-onnx-server)
+---
 
-A server based on nodejs providing Restful API for speech recognition.
+#### Output
 
-### [QSmartAssistant](https://github.com/xinhecuican/QSmartAssistant)
+The result is in **JSON** format:
 
-一个模块化，全过程可离线，低占用率的对话机器人/智能音箱
+```json
+{
+  "type": "partial",
+  "text": "Text from the current segment",
+  "segment": 0,
+  "startedAt": 0.0,
+  "elements": {
+    "segments": [
+      {
+        "type": "segment",
+        "text": "",
+        "startedAt": 0.0,
+        "segment": 0
+      }
+    ],
+    "words": [
+      {
+        "type": "word",
+        "text": "",
+        "startedAt": 0.0,
+        "segment": 0
+      }
+    ]
+  }
+}
+```
 
-It uses QT. Both [ASR](https://github.com/xinhecuican/QSmartAssistant/blob/master/doc/%E5%AE%89%E8%A3%85.md#asr)
-and [TTS](https://github.com/xinhecuican/QSmartAssistant/blob/master/doc/%E5%AE%89%E8%A3%85.md#tts)
-are used.
+---
 
-### [Flutter-EasySpeechRecognition](https://github.com/Jason-chen-coder/Flutter-EasySpeechRecognition)
+#### Output Fields
 
-It extends [./flutter-examples/streaming_asr](./flutter-examples/streaming_asr) by
-downloading models inside the app to reduce the size of the app.
+Each section contains the following elements:
 
-Note: [[Team B] Sherpa AI backend](https://github.com/umgc/spring2025/pull/82) also uses
-sherpa-onnx in a Flutter APP.
+##### `type` – The type of the element:
 
-### [sherpa-onnx-unity](https://github.com/xue-fei/sherpa-onnx-unity)
+- `final` – the full text of the decoded segment  
+- `partial` – the text of a not-yet-finished segment  
+- `segment` – part of the transcript, same as the text in the main segment (for Banafo Online).  
+- `word` – individual word
 
-sherpa-onnx in Unity. See also [#1695](https://github.com/k2-fsa/sherpa-onnx/issues/1695),
-[#1892](https://github.com/k2-fsa/sherpa-onnx/issues/1892), and [#1859](https://github.com/k2-fsa/sherpa-onnx/issues/1859)
+##### `text`
 
-### [xiaozhi-esp32-server](https://github.com/xinnan-tech/xiaozhi-esp32-server)
+The transcript of the segment or individual word.
 
-本项目为xiaozhi-esp32提供后端服务，帮助您快速搭建ESP32设备控制服务器
-Backend service for xiaozhi-esp32, helps you quickly build an ESP32 device control server.
+##### `startedAt`
 
-See also
+The timestamp (in seconds, float value) indicating the beginning of the element.  
+> Example: `1.42` = 1 second and 420 milliseconds
 
-  - [ASR新增轻量级sherpa-onnx-asr](https://github.com/xinnan-tech/xiaozhi-esp32-server/issues/315)
-  - [feat: ASR增加sherpa-onnx模型](https://github.com/xinnan-tech/xiaozhi-esp32-server/pull/379)
+##### `elements`
 
-### [KaithemAutomation](https://github.com/EternityForest/KaithemAutomation)
+Contains:
 
-Pure Python, GUI-focused home automation/consumer grade SCADA.
+- `segments`: array of segment objects  
+- `words`: array of word objects
 
-It uses TTS from sherpa-onnx. See also [✨ Speak command that uses the new globally configured TTS model.](https://github.com/EternityForest/KaithemAutomation/commit/8e64d2b138725e426532f7d66bb69dd0b4f53693)
+---
 
-### [Open-XiaoAI KWS](https://github.com/idootop/open-xiaoai-kws)
+## 3. Using `kroko-onnx` from Python
 
-Enable custom wake word for XiaoAi Speakers. 让小爱音箱支持自定义唤醒词。
+### Import and Create a Recognizer
 
-Video demo in Chinese: [小爱同学启动～˶╹ꇴ╹˶！](https://www.bilibili.com/video/BV1YfVUz5EMj)
+```python
+import kroko_onnx
 
-### [C++ WebSocket ASR Server](https://github.com/mawwalker/stt-server)
+recognizer = kroko_onnx.OnlineRecognizer.from_transducer(
+    model_path="path/to/model",
+    key="",
+    referralcode="",
+    num_threads=1,
+    provider="cpu",
+    sample_rate=16000,
+    decoding_method="modified_beam_search",
+    blank_penalty=0.0,
+    enable_endpoint_detection=True,
+    rule1_min_trailing_silence=2.4,
+    rule2_min_trailing_silence=1.2,
+    rule3_min_utterance_length=20.0,
+)
+```
 
-It provides a WebSocket server based on C++ for ASR using sherpa-onnx.
+> ⚠️ Only `model_path` is required. All other parameters are optional.
 
+---
+
+### Parameter Reference
+
+| Argument                     | Type     | Default     | Description |
+|-----------------------------|----------|-------------|-------------|
+| `model_path`                | `str`    | **Required** | Path to the Kroko model file. |
+| `key`                       | `str`    | `""`        | License key. Required only for **Pro models**. |
+| `referralcode`              | `str`    | `""`        | Optional project referral code. Contact Kroko for revenue sharing options. |
+| `num_threads`               | `int`    | `1`         | Number of threads used for neural network computation. |
+| `provider`                  | `str`    | `"cpu"`     | Execution provider. Valid values: `cpu`, `cuda`, `coreml`. |
+| `sample_rate`               | `int`    | `16000`     | Sample rate of the input audio. Resampling is performed if it differs. |
+| `decoding_method`           | `str`    | `"modified_beam_search"` | Valid values: `greedy_search`, `modified_beam_search`. |
+| `blank_penalty`             | `float`  | `0.0`       | Penalty applied to the blank symbol during decoding (applied as: `logits[:, 0] -= blank_penalty`). |
+| `enable_endpoint_detection`| `bool`   | `True`      | Enables endpoint detection using rule-based logic. |
+| `rule1_min_trailing_silence`| `float` | `2.4`       | Rule 1: Minimum trailing silence (in seconds) to trigger endpoint. |
+| `rule2_min_trailing_silence`| `float` | `1.2`       | Rule 2: Minimum trailing silence (in seconds) to trigger endpoint. |
+| `rule3_min_utterance_length`| `float` | `20.0`      | Rule 3: Minimum utterance length (in seconds) to trigger endpoint. |
+
+---
+
+### Running the Recognizer on Audio Files
+
+Below is a complete example of how to use the recognizer to transcribe one or more `.wav` files:
+
+```python
+import numpy as np
+from kroko_onnx.utils import read_wave, assert_file_exists
+
+streams = []
+total_duration = 0
+
+for wave_filename in args.sound_files:
+    assert_file_exists(wave_filename)
+
+    samples, sample_rate = read_wave(wave_filename)
+    duration = len(samples) / sample_rate
+    total_duration += duration
+
+    # Create a new stream for this audio
+    s = recognizer.create_stream()
+
+    # Send waveform data
+    s.accept_waveform(sample_rate, samples)
+
+    # Add 0.66 seconds of padding silence
+    tail_paddings = np.zeros(int(0.66 * sample_rate), dtype=np.float32)
+    s.accept_waveform(sample_rate, tail_paddings)
+
+    s.input_finished()
+    streams.append(s)
+
+# Decode all ready streams in parallel
+while True:
+    ready_list = [s for s in streams if recognizer.is_ready(s)]
+    if not ready_list:
+        break
+    recognizer.decode_streams(ready_list)
+
+# Collect results
+results = [recognizer.get_result(s) for s in streams]
+
+# Print transcriptions
+for i, result in enumerate(results):
+    print(f"{args.sound_files[i]}: {result.text}")
+```
+
+---
+
+> 🔁 You can process multiple files at once using this pattern.  
+> 📎 Each stream corresponds to one audio file.
 ### [Go WebSocket Server](https://github.com/bbeyondllove/asr_server)
 
 It provides a WebSocket server based on the Go programming language for sherpa-onnx.

@@ -1,5 +1,7 @@
 include_directories(${PROJECT_SOURCE_DIR})
 
+find_package(OpenSSL REQUIRED)
+
 if(SHERPA_ONNX_ENABLE_PYTHON)
   message(STATUS "PYTHON_EXECUTABLE: ${PYTHON_EXECUTABLE}")
   execute_process(
@@ -8,6 +10,25 @@ if(SHERPA_ONNX_ENABLE_PYTHON)
     OUTPUT_VARIABLE PYTHON_VERSION
   )
   message(STATUS "PYTHON_VERSION: ${PYTHON_VERSION}")
+endif()
+
+option(KROKO_MODEL "Enable BANAFO model" ON)       # ON by default
+option(KROKO_LICENSE "Enable BANAFO license" OFF)  # OFF by default (or ON if needed)
+
+if(DEFINED ENV{KROKO_MODEL})
+    set(KROKO_MODEL $ENV{KROKO_MODEL})
+endif()
+
+if(DEFINED ENV{KROKO_LICENSE})
+    set(KROKO_LICENSE $ENV{KROKO_LICENSE})
+endif()
+
+if(KROKO_MODEL)
+    add_definitions(-DKROKO_MODEL=1)
+endif()
+
+if(KROKO_LICENSE)
+    add_definitions(-DKROKO_LICENSE=1)
 endif()
 
 set(sources
@@ -142,6 +163,7 @@ set(sources
   voice-activity-detector.cc
   wave-reader.cc
   wave-writer.cc
+  ModelData.cc
 )
 
 # speaker embedding extractor
@@ -330,11 +352,19 @@ target_link_libraries(sherpa-onnx-core
   kaldi-native-fbank-core
   kaldi-decoder-core
   ssentencepiece_core
+  OpenSSL::SSL
+  OpenSSL::Crypto
 )
 if(DEFINED OHOS AND x${OHOS} STREQUAL xOHOS)
   target_link_libraries(sherpa-onnx-core
     hilog_ndk.z
     rawfile.z
+  )
+endif()
+
+if(SHERPA_ONNX_ENABLE_GPU)
+  target_link_libraries(sherpa-onnx-core
+    onnxruntime_providers_shared
   )
 endif()
 
@@ -398,7 +428,7 @@ if(SHERPA_ONNX_ENABLE_SPACEMIT)
   endif()
 endif()
 
-if(TARGET onnxruntime)
+if((BUILD_SHARED_LIBS OR SHERPA_ONNX_USE_PRE_INSTALLED_ONNXRUNTIME_IF_AVAILABLE) AND NOT DEFINED onnxruntime_lib_files)
   target_link_libraries(sherpa-onnx-core onnxruntime)
 else()
   target_link_libraries(sherpa-onnx-core ${onnxruntime_lib_files})
@@ -418,6 +448,8 @@ if(SHERPA_ONNX_ENABLE_TTS)
   target_link_libraries(sherpa-onnx-core
     piper_phonemize)
 endif()
+target_link_libraries(sherpa-onnx-core cppjieba)
+
 
 if(SHERPA_ONNX_ENABLE_CHECK)
   target_compile_definitions(sherpa-onnx-core PUBLIC SHERPA_ONNX_ENABLE_CHECK=1)

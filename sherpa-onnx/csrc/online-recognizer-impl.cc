@@ -38,6 +38,7 @@ namespace sherpa_onnx {
 
 std::unique_ptr<OnlineRecognizerImpl> OnlineRecognizerImpl::Create(
     const OnlineRecognizerConfig &config) {
+#ifndef KROKO_MODEL
   if (config.model_config.provider_config.provider == "rknn") {
 #if SHERPA_ONNX_ENABLE_RKNN
     if (config.model_config.transducer.encoder.empty() &&
@@ -78,6 +79,9 @@ std::unique_ptr<OnlineRecognizerImpl> OnlineRecognizerImpl::Create(
       return std::make_unique<OnlineRecognizerTransducerNeMoImpl>(config);
     }
   }
+#else
+  return std::make_unique<OnlineRecognizerTransducerImpl>(config);
+#endif
 
   if (!config.model_config.paraformer.encoder.empty()) {
     return std::make_unique<OnlineRecognizerParaformerImpl>(config);
@@ -97,6 +101,7 @@ std::unique_ptr<OnlineRecognizerImpl> OnlineRecognizerImpl::Create(
 template <typename Manager>
 std::unique_ptr<OnlineRecognizerImpl> OnlineRecognizerImpl::Create(
     Manager *mgr, const OnlineRecognizerConfig &config) {
+#ifndef KROKO_MODEL      
   if (config.model_config.provider_config.provider == "rknn") {
 #if SHERPA_ONNX_ENABLE_RKNN
     // Currently, only zipformer v1 is suported for rknn
@@ -149,6 +154,9 @@ std::unique_ptr<OnlineRecognizerImpl> OnlineRecognizerImpl::Create(
       !config.model_config.t_one_ctc.model.empty()) {
     return std::make_unique<OnlineRecognizerCtcImpl>(mgr, config);
   }
+#else
+  return std::make_unique<OnlineRecognizerTransducerImpl>(config);
+#endif
 
   SHERPA_ONNX_LOGE("Please specify a model");
   SHERPA_ONNX_EXIT(-1);
