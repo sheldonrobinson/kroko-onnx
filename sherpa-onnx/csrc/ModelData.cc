@@ -1,9 +1,6 @@
 #include "sherpa-onnx/csrc/ModelData.h"
 #include <fstream>
 #include <iostream>
-#include <openssl/aes.h>
-#include <openssl/evp.h>
-#include <openssl/rand.h>
 
 ModelData& ModelData::getInstance() {
     static ModelData instance;
@@ -29,52 +26,6 @@ bool ModelData::loadHeader(const std::string& filepath) {
     }
 
     blob.assign(std::istreambuf_iterator<char>(in), {});
-    return true;
-}
-
-bool ModelData::decryptPayload(const std::string& password) {
-    if (blob.size() < 16) return false;
-    std::vector<uint8_t> key(32, '0');
-    std::copy(password.begin(), password.end(), key.begin());
-
-    const unsigned char* iv = blob.data();
-    const unsigned char* ciphertext = blob.data() + 16;
-    int ciphertext_len = blob.size() - 16;
-
-    std::vector<uint8_t> plaintext(ciphertext_len + AES_BLOCK_SIZE);
-
-    EVP_CIPHER_CTX* ctx = EVP_CIPHER_CTX_new();
-    int len, plaintext_len;
-
-    EVP_DecryptInit_ex(ctx, EVP_aes_256_cbc(), NULL, key.data(), iv);
-    EVP_DecryptUpdate(ctx, plaintext.data(), &len, ciphertext, ciphertext_len);
-    plaintext_len = len;
-
-    EVP_DecryptFinal_ex(ctx, plaintext.data() + len, &len);
-    plaintext_len += len;
-    EVP_CIPHER_CTX_free(ctx);
-    plaintext.resize(plaintext_len);
-
-    auto it = plaintext.begin();
-    auto readBlock = [&](std::vector<uint8_t>::iterator& it) {
-        uint32_t len = *reinterpret_cast<uint32_t*>(&*it);
-        it += 4;
-        std::vector<uint8_t> buf(it, it + len);
-        it += len;
-        return buf;
-    };
-
-    try {
-        encoder = readBlock(it);
-        decoder = readBlock(it);
-        joiner  = readBlock(it);
-        auto tokensData = readBlock(it);
-        tokens.assign(tokensData.begin(), tokensData.end());
-    } catch (const std::exception& e) {
-        std::cerr << "Payload parsing error: " << e.what() << "\n";
-        return false;
-    }
-
     return true;
 }
 
