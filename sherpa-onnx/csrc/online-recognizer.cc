@@ -27,13 +27,6 @@
 #include "sherpa-onnx/csrc/online-recognizer-impl.h"
 #include "sherpa-onnx/csrc/text-utils.h"
 
-#include <thread>
-#include <map>
-#include <functional>
-#include <bits/stdc++.h>
-#include<iostream>
-#include<algorithm>
-
 namespace sherpa_onnx {
 
   std::string escape_json_online(const std::string &s) {
