@@ -52,46 +52,6 @@ You can download them from:
 After downloading, place the models in the appropriate directory (for example: models/).
 )";
 
-#ifdef KROKO_LICENSE 
-void* http_thread(void* ptr) {
-  try {
-    httplib::Server svr;
-
-    svr.Get("/health", [](const httplib::Request&, httplib::Response& res) {
-      res.set_content("", "text/plain");
-    });
-
-    svr.Get("/metrics", [](const httplib::Request&, httplib::Response& res) {
-      char buf[100];
-      std::time_t t = std::time(nullptr);
-      std::tm tm = *std::gmtime(&t); // Convert to GMT/UTC time
-      std::strftime(buf, sizeof(buf), "%a, %d %b %Y %H:%M:%S GMT", &tm);
-      std::string date = std::string(buf);
-      res.set_header("Date", date);
-      std::string msg = "# HELP decoder_connections Amount of active connections\n# TYPE decoder_connections gauge\ndecoder_connections " + std::to_string(sherpa_onnx::total_connections) + "\n";
-      res.set_content(msg, "text/plain; version=0.0.4");
-    });
-
-    svr.Get("/ready", [](const httplib::Request&, httplib::Response& res) {
-      if(sherpa_onnx::num_max_connections == 0 || sherpa_onnx::total_connections < sherpa_onnx::num_max_connections) {
-        res.set_content("", "text/plain");
-      }
-      else {
-        res.set_content("", "text/plain");
-        res.status = 503;
-      }
-    });
-
-    sleep(5);
-    svr.listen("0.0.0.0", *(int32_t*)ptr);
-  } catch(std::exception& e)
-  {
-      std::cerr << e.what();
-      exit(1);
-  }
-  return NULL;
-}
-#endif
 
 static const std::string kUsageMessage = "Automatic speech recognition using websocket.\n"
         "Usage:\n\n"
@@ -167,12 +127,6 @@ int32_t main(int32_t argc, char *argv[]) {
   SHERPA_ONNX_LOGE("Listening on: %d", port);
   SHERPA_ONNX_LOGE("Number of work threads: %d", num_work_threads);
 
-#ifdef KROKO_LICENSE 
-  if(metrics_port > 0) {
-    http_th = pthread_create(&http_th, NULL, http_thread, &metrics_port);
-  }
-#endif  
-
   // give some work to do for the io_work pool
   auto work_guard = asio::make_work_guard(io_work);
 
@@ -197,12 +151,6 @@ int32_t main(int32_t argc, char *argv[]) {
   for (auto &t : work_threads) {
     t.join();
   }
-
-#ifdef KROKO_LICENSE 
-  if(metrics_port > 0) {
-    pthread_join(http_th, NULL);
-  }
-#endif  
 
   return 0;
 }
