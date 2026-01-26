@@ -1,7 +1,5 @@
 include_directories(${PROJECT_SOURCE_DIR})
 
-find_package(OpenSSL REQUIRED)
-
 if(SHERPA_ONNX_ENABLE_PYTHON)
   message(STATUS "PYTHON_EXECUTABLE: ${PYTHON_EXECUTABLE}")
   execute_process(
@@ -352,8 +350,6 @@ target_link_libraries(sherpa-onnx-core
   kaldi-native-fbank-core
   kaldi-decoder-core
   ssentencepiece_core
-  OpenSSL::SSL
-  OpenSSL::Crypto
 )
 if(DEFINED OHOS AND x${OHOS} STREQUAL xOHOS)
   target_link_libraries(sherpa-onnx-core
