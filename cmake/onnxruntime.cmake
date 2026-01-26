@@ -139,8 +139,6 @@ if(SHERPA_ONNX_USE_PRE_INSTALLED_ONNXRUNTIME_IF_AVAILABLE)
 
   if(DEFINED ENV{SHERPA_ONNXRUNTIME_INCLUDE_DIR})
     set(location_onnxruntime_header_dir $ENV{SHERPA_ONNXRUNTIME_INCLUDE_DIR})
-
-    include_directories(${location_onnxruntime_header_dir})
   else()
     find_path(location_onnxruntime_header_dir onnxruntime_cxx_api.h
       PATHS
@@ -148,6 +146,8 @@ if(SHERPA_ONNX_USE_PRE_INSTALLED_ONNXRUNTIME_IF_AVAILABLE)
         /usr/local/include/onnxruntime
     )
   endif()
+
+  include_directories(${location_onnxruntime_header_dir})
 
   message(STATUS "location_onnxruntime_header_dir: ${location_onnxruntime_header_dir}")
 
