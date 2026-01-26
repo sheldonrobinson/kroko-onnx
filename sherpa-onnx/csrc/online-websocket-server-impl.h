@@ -19,7 +19,6 @@
 #include <atomic>
 
 #include <regex>
-#include "license.h"
 
 #include "asio.hpp"  // NOLINT
 #include "sherpa-onnx/csrc/online-recognizer.h"
@@ -32,13 +31,6 @@ using server = websocketpp::server<websocketpp::config::asio>;
 using connection_hdl = websocketpp::connection_hdl;
 
 namespace sherpa_onnx {
-
-#ifdef KROKO_LICENSE
-extern std::atomic<uint64_t> total_duration;
-extern std::atomic<bool> license_status;
-extern std::atomic<uint64_t> total_connections;
-extern std::atomic<int32_t> num_max_connections;
-#endif
 
 struct Connection {
   // handle to the connection. We can use it to send messages to the client
