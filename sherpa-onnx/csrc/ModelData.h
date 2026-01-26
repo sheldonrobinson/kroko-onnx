@@ -17,7 +17,6 @@ public:
 
     // Public interface
     bool loadHeader(const std::string& filepath);
-    bool decryptPayload(const std::string& password);
     bool loadPayload();
     std::string getHeaderValue(const std::string& key) const;
 
