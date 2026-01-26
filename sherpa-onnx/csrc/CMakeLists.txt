@@ -425,8 +425,10 @@ if(SHERPA_ONNX_ENABLE_SPACEMIT)
 endif()
 
 if((BUILD_SHARED_LIBS OR SHERPA_ONNX_USE_PRE_INSTALLED_ONNXRUNTIME_IF_AVAILABLE) AND NOT DEFINED onnxruntime_lib_files)
+  message(WARN "Linking to sherpa-onnx-core to onnxruntime")
   target_link_libraries(sherpa-onnx-core onnxruntime)
 else()
+   message(WARN "Linking to sherpa-onnx-core to onnxruntime lib files: ${onnxruntime_lib_files}")
   target_link_libraries(sherpa-onnx-core ${onnxruntime_lib_files})
 endif()
 
