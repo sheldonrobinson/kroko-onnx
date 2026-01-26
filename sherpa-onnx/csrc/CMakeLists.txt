@@ -855,9 +855,11 @@ foreach(s IN LISTS sources)
 endforeach()
 
 # For clang-tidy
+if (SHERPA_ONNX_ENABLE_CHECK)
 add_custom_target(
   clang-tidy-check
   clang-tidy -p ${CMAKE_BINARY_DIR}/compile_commands.json --config-file ${PROJECT_SOURCE_DIR}/.clang-tidy ${srcs_to_check}
   DEPENDS ${sources})
 
 add_custom_target(check DEPENDS clang-tidy-check)
+endif()
