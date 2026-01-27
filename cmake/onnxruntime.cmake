@@ -190,8 +190,8 @@ if(SHERPA_ONNX_USE_PRE_INSTALLED_ONNXRUNTIME_IF_AVAILABLE)
 endif()
 
 if(location_onnxruntime_header_dir AND location_onnxruntime_lib)
+  add_library(onnxruntime SHARED IMPORTED)
   if(NOT DEFINED onnxruntime_lib_files)
-    add_library(onnxruntime SHARED IMPORTED)
     if(WIN32)
       set_target_properties(onnxruntime PROPERTIES
         IMPORTED_LOCATION ${location_onnxruntime_lib}
@@ -216,12 +216,12 @@ if(location_onnxruntime_header_dir AND location_onnxruntime_lib)
       endif()
     endif()
 
-    message(WARN "onnxruntime lib files: ${onnxruntime_lib_files}")
+    message(STATUS "onnxruntime lib files: ${onnxruntime_lib_files}")
 
     install(FILES ${onnxruntime_lib_files} DESTINATION lib)
 
     if(WIN32)
-      message(WARN "onnxruntime bin files: ${onnxruntime_bin_files}")
+      message(STATUS "onnxruntime bin files: ${onnxruntime_bin_files}")
       install(FILES ${onnxruntime_bin_files} DESTINATION bin)
     endif()
   endif()
