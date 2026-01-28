@@ -230,7 +230,6 @@ endif()
 
 if(SHERPA_ONNX_ENABLE_DIRECTML)
   message(STATUS "DirectML is enabled")
-  message(WARN "DirectML is enabled, adding definition SHERPA_ONNX_ENABLE_DIRECTML=1")
   add_definitions(-DSHERPA_ONNX_ENABLE_DIRECTML=1)
 else()
   message(STATUS "DirectML is disabled")
