@@ -44,20 +44,23 @@ enum class ModelType : std::uint8_t {
 
 namespace sherpa_onnx {
 
-#ifdef KROKO_MODEL
-
 void BanafoLoadModel(const OnlineModelConfig &config) {
     auto& model = ModelData::getInstance();
     if (!model.loadHeader(config.model_path)) {
-        std::cerr << "Failed to load model header." << std::endl;
-        exit(1);
+#if __OHOS__
+    SHERPA_ONNX_LOGE("Failed to load model header %{public}s", config.model_path.c_str());
+#else
+    SHERPA_ONNX_LOGE("Failed to load model header from %s", config.model_path.c_str());
+#endif
     }
     if (!model.loadPayload()) {
-      std::cerr << "Failed to load the payload." << std::endl;
-      exit(1);
+#if __OHOS__
+    SHERPA_ONNX_LOGE("Failed to load the payload from %{public}s", config.model_path.c_str());
+#else
+    SHERPA_ONNX_LOGE("Failed to load the payload from %s", config.model_path.c_str());
+#endif
     }
 }
-#endif
 
 static ModelType GetModelType(char *model_data, size_t model_data_length,
                               bool debug) {
@@ -109,18 +112,14 @@ static ModelType GetModelType(char *model_data, size_t model_data_length,
 
 std::unique_ptr<OnlineTransducerModel> OnlineTransducerModel::Create(
     const OnlineModelConfig &config) {
-#ifdef KROKO_MODEL      
-  BanafoLoadModel(config);
-  auto& model = ModelData::getInstance();
-#endif
 
-#ifdef KROKO_MODEL
-  {
-    const auto &model_type = model.getHeaderValue("type");
-#else
-  if (!config.model_type.empty()) {
-    const auto &model_type = config.model_type;
-#endif    
+  if(!config.model_path.empty()) {
+    BanafoLoadModel(config);
+  }
+  
+  if (!config.model_type.empty() || !config.model_path.empty()) {
+    const auto &model_type = !config.model_path.empty() ? ModelData::getInstance().getHeaderValue("type") :
+       config.model_type;
     if (model_type == "conformer") {
       return std::make_unique<OnlineConformerTransducerModel>(config);
     } else if (model_type == "ebranchformer") {
