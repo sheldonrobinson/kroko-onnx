@@ -138,7 +138,7 @@ std::unique_ptr<OnlineTransducerModel> OnlineTransducerModel::Create(
   }
   ModelType model_type = ModelType::kUnknown;
 
-  {
+  if(!config.transducer.encoder.empty()) {
     auto buffer = ReadFile(config.transducer.encoder);
 
     model_type = GetModelType(buffer.data(), buffer.size(), config.debug);
