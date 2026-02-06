@@ -103,6 +103,10 @@ static sherpa_onnx::OnlineRecognizerConfig GetOnlineRecognizerConfig(
   recognizer_config.model_config.t_one_ctc.model =
       SHERPA_ONNX_OR(config->model_config.t_one_ctc.model, "");
 
+  // kroko model package
+  recognizer_config.model_config.model_path =
+      SHERPA_ONNX_OR(config->model_config.model_path, "");
+
   recognizer_config.model_config.num_threads =
       SHERPA_ONNX_OR(config->model_config.num_threads, 1);
   recognizer_config.model_config.provider_config.provider =
