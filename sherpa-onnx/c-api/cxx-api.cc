@@ -75,6 +75,8 @@ OnlineRecognizer OnlineRecognizer::Create(
   c.model_config.nemo_ctc.model = config.model_config.nemo_ctc.model.c_str();
   c.model_config.t_one_ctc.model = config.model_config.t_one_ctc.model.c_str();
 
+  c.model_config.model_path = config.model_config.model_path.c_str();
+
   c.model_config.tokens = config.model_config.tokens.c_str();
   c.model_config.num_threads = config.model_config.num_threads;
   c.model_config.provider = config.model_config.provider.c_str();
