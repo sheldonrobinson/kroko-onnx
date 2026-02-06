@@ -125,10 +125,9 @@ SHERPA_ONNX_API typedef struct SherpaOnnxOnlineModelConfig {
   /// byte size excluding the trailing '\0'
   int32_t tokens_buf_size;
   SherpaOnnxOnlineNemoCtcModelConfig nemo_ctc;
-#ifdef KROKO_MODEL
+
   /// kroko model format packaging
-  bool kroko_model_package;
-#endif
+  const char *model_path;
 } SherpaOnnxOnlineModelConfig;
 
 /// It expects 16 kHz 16-bit single channel wave format.
