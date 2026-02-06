@@ -48,9 +48,7 @@ void OnlineModelConfig::Register(ParseOptions *po) {
   t_one_ctc.Register(po);
   provider_config.Register(po);
 
-#ifndef KROKO_MODEL
   po->Register("tokens", &tokens, "Path to tokens.txt");
-#endif  
 
   po->Register("num-threads", &num_threads,
                "Number of threads to run the neural network");
@@ -75,15 +73,12 @@ void OnlineModelConfig::Register(ParseOptions *po) {
                "your bpe model is generated. Only used when hotwords provided "
                "and the modeling unit is bpe or cjkchar+bpe");
 
-#ifndef KROKO_MODEL
   po->Register("model-type", &model_type,
                "Specify it to reduce model initialization time. "
                "Valid values are: conformer, lstm, zipformer, zipformer2, "
                "wenet_ctc, nemo_ctc. "
                "All other values lead to loading the model twice.");
-#else
   po->Register("model", &model_path, "The path to the model file.");
-#endif
 
 #ifdef KROKO_LICENSE
   po->Register("key", &key, "The account license key.");
@@ -149,31 +144,31 @@ bool OnlineModelConfig::Validate() const {
     }
   }
 
-#ifndef KROKO_MODEL
-  if (!tokens_buf.empty() && FileExists(tokens)) {
-    SHERPA_ONNX_LOGE(
-        "you can not provide a tokens_buf and a tokens file: '%s', "
-        "at the same time, which is confusing",
-        tokens.c_str());
-    return false;
+  if(model_path.empty()){
+    if ((!tokens_buf.empty() && FileExists(tokens))) {
+      SHERPA_ONNX_LOGE(
+          "you can not provide a tokens_buf and a tokens file: '%s', "
+          "at the same time, which is confusing",
+          tokens.c_str());
+      return false;
+    }
+  
+    if ((tokens_buf.empty() && !FileExists(tokens))) {
+      SHERPA_ONNX_LOGE(
+          "tokens: '%s' does not exist, you should provide "
+          "either a tokens buffer or a tokens file",
+          tokens.c_str());
+      return false;
+    }
+  } else {
+    if (model_path.empty() && !FileExists(model_path)) {
+      SHERPA_ONNX_LOGE(
+          "model_path: '%s' does not exist, you should provide "
+          "path to a model file.%s",
+          model_path.c_str(), banafo_help);
+      return false;
+    }
   }
-
-  if (tokens_buf.empty() && !FileExists(tokens)) {
-    SHERPA_ONNX_LOGE(
-        "tokens: '%s' does not exist, you should provide "
-        "either a tokens buffer or a tokens file",
-        tokens.c_str());
-    return false;
-  }
-#else
-  if (model_path.empty() && !FileExists(model_path)) {
-    SHERPA_ONNX_LOGE(
-        "model_path: '%s' does not exist, you should provide "
-        "path to a model file.%s",
-        model_path.c_str(), banafo_help);
-    return false;
-  }
-#endif
 
   if (!modeling_unit.empty() &&
       (modeling_unit == "bpe" || modeling_unit == "cjkchar+bpe")) {
