@@ -45,33 +45,33 @@ OnlineZipformer2TransducerModel::OnlineZipformer2TransducerModel(
       config_(config),
       allocator_{} {
   {
-#ifdef KROKO_MODEL
-    auto& model = ModelData::getInstance();
-    InitEncoder(model.encoder.data(), model.encoder.size());
-#else      
-    auto buf = ReadFile(config.transducer.encoder);
-    InitEncoder(buf.data(), buf.size());
-#endif
+    if(!config.model_path.empty()) {
+        auto& model = ModelData::getInstance();
+        InitEncoder(model.encoder.data(), model.encoder.size());
+    } else {  
+        auto buf = ReadFile(config.transducer.encoder);
+        InitEncoder(buf.data(), buf.size());
+    }
   }
 
   {
-#ifdef KROKO_MODEL      
-    auto& model = ModelData::getInstance();
-    InitDecoder(model.decoder.data(), model.decoder.size());
-#else
-    auto buf = ReadFile(config.transducer.decoder);
-    InitDecoder(buf.data(), buf.size());
-#endif
+    if(!config.model_path.empty()) {     
+        auto& model = ModelData::getInstance();
+        InitDecoder(model.decoder.data(), model.decoder.size());
+    } else {  
+        auto buf = ReadFile(config.transducer.decoder);
+        InitDecoder(buf.data(), buf.size());
+    }
   }
 
   {
-#ifdef KROKO_MODEL      
-    auto& model = ModelData::getInstance();
-    InitJoiner(model.joiner.data(), model.joiner.size());
-#else
-    auto buf = ReadFile(config.transducer.joiner);
-    InitJoiner(buf.data(), buf.size());
-#endif
+    if(!config.model_path.empty()) {     
+        auto& model = ModelData::getInstance();
+        InitJoiner(model.joiner.data(), model.joiner.size());
+    } else {  
+        auto buf = ReadFile(config.transducer.joiner);
+        InitJoiner(buf.data(), buf.size());
+    }
   }
 }
 
