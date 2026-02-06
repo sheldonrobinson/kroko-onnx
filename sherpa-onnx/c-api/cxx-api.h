@@ -46,6 +46,7 @@ struct OnlineModelConfig {
   OnlineZipformer2CtcModelConfig zipformer2_ctc;
   OnlineNemoCtcModelConfig nemo_ctc;
   OnlineToneCtcModelConfig t_one_ctc;
+  std::string model_path;
   std::string tokens;
   int32_t num_threads = 1;
   std::string provider = "cpu";
