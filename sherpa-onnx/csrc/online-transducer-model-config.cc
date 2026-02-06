@@ -12,11 +12,9 @@
 namespace sherpa_onnx {
 
 void OnlineTransducerModelConfig::Register(ParseOptions *po) {
-#ifndef KROKO_MODEL
   po->Register("encoder", &encoder, "Path to encoder.onnx");
   po->Register("decoder", &decoder, "Path to decoder.onnx");
   po->Register("joiner", &joiner, "Path to joiner.onnx");
-#endif  
 }
 
 bool OnlineTransducerModelConfig::Validate() const {
