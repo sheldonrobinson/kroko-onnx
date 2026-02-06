@@ -74,6 +74,10 @@ static sherpa_onnx::OnlineRecognizerConfig GetOnlineRecognizerConfig(
   recognizer_config.feat_config.feature_dim =
       SHERPA_ONNX_OR(config->feat_config.feature_dim, 80);
 
+  // kroko model package
+  recognizer_config.model_config.model_path =
+      SHERPA_ONNX_OR(config->model_config.model_path, "");
+
   recognizer_config.model_config.transducer.encoder =
       SHERPA_ONNX_OR(config->model_config.transducer.encoder, "");
   recognizer_config.model_config.transducer.decoder =
@@ -88,7 +92,10 @@ static sherpa_onnx::OnlineRecognizerConfig GetOnlineRecognizerConfig(
 
   recognizer_config.model_config.zipformer2_ctc.model =
       SHERPA_ONNX_OR(config->model_config.zipformer2_ctc.model, "");
-
+    
+  recognizer_config.model_config.nemo_ctc.model =
+      SHERPA_ONNX_OR(config->model_config.nemo_ctc.model, "");
+    
   recognizer_config.model_config.tokens =
       SHERPA_ONNX_OR(config->model_config.tokens, "");
   if (config->model_config.tokens_buf &&
@@ -96,9 +103,6 @@ static sherpa_onnx::OnlineRecognizerConfig GetOnlineRecognizerConfig(
     recognizer_config.model_config.tokens_buf = std::string(
         config->model_config.tokens_buf, config->model_config.tokens_buf_size);
   }
-
-  recognizer_config.model_config.nemo_ctc.model =
-      SHERPA_ONNX_OR(config->model_config.nemo_ctc.model, "");
 
   recognizer_config.model_config.num_threads =
       SHERPA_ONNX_OR(config->model_config.num_threads, 1);
