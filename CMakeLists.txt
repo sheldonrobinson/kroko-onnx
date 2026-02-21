@@ -472,8 +472,6 @@ include(kaldi-native-fbank)
 include(kaldi-decoder)
 include(onnxruntime)
 include(simple-sentencepiece)
-set(ONNXRUNTIME_DIR ${onnxruntime_SOURCE_DIR})
-message(STATUS "ONNXRUNTIME_DIR: ${ONNXRUNTIME_DIR}")
 
 if(SHERPA_ONNX_ENABLE_PORTAUDIO AND SHERPA_ONNX_ENABLE_BINARY)
   # portaudio is used only in building demo binaries and the kroko-onnx-core
