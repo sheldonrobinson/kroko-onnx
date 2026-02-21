@@ -1,6 +1,7 @@
 include(cargs)
 
 include_directories(${PROJECT_SOURCE_DIR})
+if(SHERPA_ONNX_BUILD_C_API_EXAMPLES)
 add_executable(decode-file-c-api decode-file-c-api.c)
 target_link_libraries(decode-file-c-api sherpa-onnx-c-api cargs)
 
@@ -130,4 +131,5 @@ if(SHERPA_ONNX_HAS_ALSA)
   add_subdirectory(./asr-microphone-example)
 elseif((UNIX AND NOT APPLE) OR LINUX)
   message(WARNING "Not include ./asr-microphone-example since alsa is not available")
+endif()
 endif()
