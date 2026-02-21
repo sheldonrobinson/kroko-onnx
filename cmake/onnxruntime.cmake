@@ -189,6 +189,7 @@ if(SHERPA_ONNX_USE_PRE_INSTALLED_ONNXRUNTIME_IF_AVAILABLE)
   message(STATUS "location_onnxruntime_lib: ${location_onnxruntime_lib}")
 endif()
 
+if(NOT TARGET onnxruntime)
 if(location_onnxruntime_header_dir AND location_onnxruntime_lib)
   add_library(onnxruntime SHARED IMPORTED)
   if(NOT DEFINED onnxruntime_lib_files)
@@ -232,4 +233,5 @@ else()
   message(STATUS "Downloading pre-compiled onnxruntime")
 
   download_onnxruntime()
+endif()
 endif()
