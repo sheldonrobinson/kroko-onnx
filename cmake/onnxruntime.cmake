@@ -191,7 +191,8 @@ endif()
 
 if(NOT TARGET onnxruntime)
 if(location_onnxruntime_header_dir AND location_onnxruntime_lib)
-  add_library(onnxruntime SHARED IMPORTED)
+  if(NOT DEFINED onnxruntime_lib_files)
+    add_library(onnxruntime SHARED IMPORTED)
     if(WIN32)
       set_target_properties(onnxruntime PROPERTIES
         IMPORTED_LOCATION ${location_onnxruntime_lib}
@@ -224,6 +225,7 @@ if(location_onnxruntime_header_dir AND location_onnxruntime_lib)
       message(STATUS "onnxruntime bin files: ${onnxruntime_bin_files}")
       install(FILES ${onnxruntime_bin_files} DESTINATION bin)
     endif()
+  endif()
   message(WARNING "location_onnxruntime_lib ${location_onnxruntime_lib}")
   message(WARNING "location_onnxruntime_lib2 ${location_onnxruntime_lib2}")
 else()
