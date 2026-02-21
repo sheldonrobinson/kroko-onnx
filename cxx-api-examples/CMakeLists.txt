@@ -1,5 +1,6 @@
 include_directories(${PROJECT_SOURCE_DIR})
 
+if(SHERPA_ONNX_BUILD_C_API_EXAMPLES)
 add_executable(streaming-zipformer-cxx-api ./streaming-zipformer-cxx-api.cc)
 target_link_libraries(streaming-zipformer-cxx-api sherpa-onnx-cxx-api)
 
@@ -157,4 +158,5 @@ if(SHERPA_ONNX_ENABLE_TTS)
 
   add_executable(kokoro-tts-zh-en-cxx-api ./kokoro-tts-zh-en-cxx-api.cc)
   target_link_libraries(kokoro-tts-zh-en-cxx-api sherpa-onnx-cxx-api)
+endif()
 endif()
